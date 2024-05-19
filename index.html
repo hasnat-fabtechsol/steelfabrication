@@ -48,7 +48,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        var scene = new THREE.Scene();
+     
+     var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(400, 400, 400);
         camera.lookAt(scene.position);
@@ -57,10 +58,25 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
+        // Create first baseplate
         var geometry = new THREE.BoxGeometry(300, 12, 300);
         var material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
         var baseplate = new THREE.Mesh(geometry, material);
         scene.add(baseplate);
+
+        // Create second baseplate
+        var topBaseplate = new THREE.Mesh(geometry, material);
+        topBaseplate.position.y = 200; // Adjust height to be above the first baseplate
+        scene.add(topBaseplate);
+
+        // Define supcol globally
+        var supcolGeometry = new THREE.BoxGeometry(100, 200, 100);
+        var supcolMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+        var supcol = new THREE.Mesh(supcolGeometry, supcolMaterial);
+        supcol.position.y = 100;
+        scene.add(supcol);
+
+     
 
         var xAxisSlider = document.getElementById("xAxis");
         var zAxisSlider = document.getElementById("zAxis");
@@ -72,6 +88,13 @@
             var xAxisLength = parseFloat(xAxisSlider.value);
             var zAxisLength = parseFloat(zAxisSlider.value);
             baseplate.scale.set(xAxisLength / 300, thickness / 12, zAxisLength / 300);
+            topBaseplate.scale.set(xAxisLength / 300, thickness / 12, zAxisLength / 300);
+            topBaseplate.position.y = 200 * (thickness / 12); // Adjust height based on thickness
+
+            // Adjust supcol height and position based on thickness
+            supcol.scale.y = topBaseplate.position.y / 200;
+            supcol.position.y = topBaseplate.position.y / 2;
+
             updateHoles();
         }
 
@@ -93,7 +116,7 @@
             var holeGeometry = new THREE.CylinderGeometry(holeDiameter / 2, holeDiameter / 2, 12, 32);
             var holeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 
-            // Add holes to the baseplate
+            // Add holes to the baseplates
             for (let i = 0; i < 4; i++) {
                 for (let j = 0; j < 4; j++) {
                     var hole = new THREE.Mesh(holeGeometry, holeMaterial);
@@ -102,6 +125,13 @@
                     hole.position.y = (thicknessSelect.value / 2) + 2; // Adjust Y position
                     hole.position.z = (j % 2 === 0) ? (-baseplate.scale.z * 150 + 20) : (baseplate.scale.z * 150 - 20);
                     scene.add(hole);
+
+                    // Add corresponding holes to the top baseplate
+                    var topHole = new THREE.Mesh(holeGeometry, holeMaterial);
+                    topHole.userData.isHole = true; // Identify this as a hole
+                    topHole.position.copy(hole.position);
+                    topHole.position.y += 200 * (thicknessSelect.value / 12);
+                    scene.add(topHole);
                 }
             }
         }
@@ -128,6 +158,50 @@
             renderer.render(scene, camera);
         }
         animate();
+
+        var isDragging = false;
+        var previousMousePosition = {
+            x: 0,
+            y: 0
+        };
+
+        renderer.domElement.addEventListener('mousedown', function (e) {
+            isDragging = true;
+        });
+
+        renderer.domElement.addEventListener('mousemove', function (e) {
+            var deltaMove = {
+                x: e.offsetX - previousMousePosition.x,
+                y: e.offsetY - previousMousePosition.y
+            };
+
+            if (isDragging) {
+                var deltaRotationQuaternion = new THREE.Quaternion()
+                    .setFromEuler(new THREE.Euler(
+                        toRadians(deltaMove.y * 1),
+                        toRadians(deltaMove.x * 1),
+                        0,
+                        'XYZ'
+                    ));
+
+                baseplate.quaternion.multiplyQuaternions(deltaRotationQuaternion, baseplate.quaternion);
+                topBaseplate.quaternion.multiplyQuaternions(deltaRotationQuaternion, topBaseplate.quaternion);
+                supcol.quaternion.multiplyQuaternions(deltaRotationQuaternion, supcol.quaternion);
+            }
+
+            previousMousePosition = {
+                x: e.offsetX,
+                y: e.offsetY
+            };
+        });
+
+        document.addEventListener('mouseup', function (e) {
+            isDragging = false;
+        });
+
+        function toRadians(angle) {
+            return angle * (Math.PI / 180);
+        }
     </script>
 </body>
 
