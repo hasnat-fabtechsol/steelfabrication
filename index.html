@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Baseplate Example</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .control-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="control-container">
+        <label for="thickness">Choose thickness for Y-axis:</label>
+        <select id="thickness">
+            <option value="12">12mm</option>
+            <option value="14">14mm</option>
+            <option value="16">16mm</option>
+        </select><br><br>
+        <label for="xAxis">X-axis Length (100mm - 600mm):</label>
+        <input type="range" id="xAxis" min="100" max="600" value="300"><br><br>
+        <label for="zAxis">Z-axis Length (100mm - 600mm):</label>
+        <input type="range" id="zAxis" min="100" max="600" value="300"><br><br>
+        <label for="holeDiameter">Hole Diameter:</label>
+        <select id="holeDiameter">
+            <option value="6">6mm</option>
+            <option value="8" selected="">8mm</option>
+            <option value="10">10mm</option>
+        </select><br><br>
+        <button onclick="addSupcol()">Add Supcol</button><br><br>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(400, 400, 400);
+        camera.lookAt(scene.position);
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        var geometry = new THREE.BoxGeometry(300, 12, 300);
+        var material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+        var baseplate = new THREE.Mesh(geometry, material);
+        scene.add(baseplate);
+
+        var xAxisSlider = document.getElementById("xAxis");
+        var zAxisSlider = document.getElementById("zAxis");
+        var thicknessSelect = document.getElementById("thickness");
+        var holeDiameterSelect = document.getElementById("holeDiameter");
+
+        function updateBaseplate() {
+            var thickness = parseFloat(thicknessSelect.value);
+            var xAxisLength = parseFloat(xAxisSlider.value);
+            var zAxisLength = parseFloat(zAxisSlider.value);
+            baseplate.scale.set(xAxisLength / 300, thickness / 12, zAxisLength / 300);
+            updateHoles();
+        }
+
+        xAxisSlider.addEventListener("input", updateBaseplate);
+        zAxisSlider.addEventListener("input", updateBaseplate);
+        thicknessSelect.addEventListener("change", updateBaseplate);
+
+        function addSupcol() {
+            var supcolGeometry = new THREE.BoxGeometry(100, 2000, 100);
+            var supcolMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+            var supcol = new THREE.Mesh(supcolGeometry, supcolMaterial);
+            supcol.position.copy(baseplate.position);
+            supcol.position.y += 1000; // Adjusting height to put it on top of the baseplate
+            scene.add(supcol);
+        }
+
+        function addHoles() {
+            var holeDiameter = parseFloat(holeDiameterSelect.value);
+            var holeGeometry = new THREE.CylinderGeometry(holeDiameter / 2, holeDiameter / 2, 12, 32);
+            var holeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+
+            // Add holes to the baseplate
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    var hole = new THREE.Mesh(holeGeometry, holeMaterial);
+                    hole.userData.isHole = true; // Identify this as a hole
+                    hole.position.x = (i % 2 === 0) ? (-baseplate.scale.x * 150 + 20) : (baseplate.scale.x * 150 - 20);
+                    hole.position.y = (thicknessSelect.value / 2) + 2; // Adjust Y position
+                    hole.position.z = (j % 2 === 0) ? (-baseplate.scale.z * 150 + 20) : (baseplate.scale.z * 150 - 20);
+                    scene.add(hole);
+                }
+            }
+        }
+
+        function updateHoles() {
+            // Remove existing holes
+            scene.traverse(function (object) {
+                if (object instanceof THREE.Mesh && object.userData.isHole) {
+                    scene.remove(object);
+                }
+            });
+
+            // Add new holes
+            addHoles();
+        }
+
+        // Add directional light
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(400, 400, -400);
+        scene.add(directionalLight);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+
+</html>
