@@ -142,7 +142,97 @@ holes.push(hole)
 
 
 
-        function updateBaseplate() {
+     
+
+
+
+
+
+
+// 3d view with camera
+var group = new THREE.Group();
+
+// Add directional light
+var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(400, 400, -400);
+scene.add(directionalLight);
+
+// Assuming baseplate, topBaseplate, supcol, and holes are already created
+
+// Add objects to the group
+group.add(baseplate);
+group.add(topBaseplate);
+group.add(supcol);
+// Assuming holes are stored in an array 'holes'
+holes.forEach(hole => group.add(hole));
+
+// Add the group to the scene
+scene.add(group);
+
+// Start the animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
+animate();
+
+var isDragging = false;
+var previousMousePosition = {
+    x: 0,
+    y: 0
+};
+
+renderer.domElement.addEventListener('mousedown', function (e) {
+    isDragging = true;
+});
+
+renderer.domElement.addEventListener('mousemove', function (e) {
+    var deltaMove = {
+        x: e.offsetX - previousMousePosition.x,
+        y: e.offsetY - previousMousePosition.y
+    };
+
+    if (isDragging) {
+        var deltaRotationQuaternion = new THREE.Quaternion()
+            .setFromEuler(new THREE.Euler(
+                toRadians(deltaMove.y * 1),
+                toRadians(deltaMove.x * 1),
+                0,
+                'XYZ'
+            ));
+
+        // Apply rotation to the group
+        group.quaternion.multiplyQuaternions(deltaRotationQuaternion, group.quaternion);
+    }
+
+    previousMousePosition = {
+        x: e.offsetX,
+        y: e.offsetY
+    };
+});
+
+document.addEventListener('mouseup', function (e) {
+    isDragging = false;
+});
+
+// Utility function to convert degrees to radians
+function toRadians(angle) {
+    return angle * (Math.PI / 180);
+}
+
+
+
+
+
+
+
+
+
+
+
+// update things
+
+function updateBaseplate() {
             var thickness = parseFloat(thicknessSelect.value);
             var xAxisLength = parseFloat(xAxisSlider.value);
             var zAxisLength = parseFloat(zAxisSlider.value);
@@ -217,76 +307,7 @@ holes.push(hole)
             renderer.render(scene, camera);
         }
         animate();
-// Create a new group
-var group = new THREE.Group();
 
-// Add directional light
-var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(400, 400, -400);
-scene.add(directionalLight);
-
-// Assuming baseplate, topBaseplate, supcol, and holes are already created
-
-// Add objects to the group
-group.add(baseplate);
-group.add(topBaseplate);
-group.add(supcol);
-// Assuming holes are stored in an array 'holes'
-holes.forEach(hole => group.add(hole));
-
-// Add the group to the scene
-scene.add(group);
-
-// Start the animation loop
-function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-}
-animate();
-
-var isDragging = false;
-var previousMousePosition = {
-    x: 0,
-    y: 0
-};
-
-renderer.domElement.addEventListener('mousedown', function (e) {
-    isDragging = true;
-});
-
-renderer.domElement.addEventListener('mousemove', function (e) {
-    var deltaMove = {
-        x: e.offsetX - previousMousePosition.x,
-        y: e.offsetY - previousMousePosition.y
-    };
-
-    if (isDragging) {
-        var deltaRotationQuaternion = new THREE.Quaternion()
-            .setFromEuler(new THREE.Euler(
-                toRadians(deltaMove.y * 1),
-                toRadians(deltaMove.x * 1),
-                0,
-                'XYZ'
-            ));
-
-        // Apply rotation to the group
-        group.quaternion.multiplyQuaternions(deltaRotationQuaternion, group.quaternion);
-    }
-
-    previousMousePosition = {
-        x: e.offsetX,
-        y: e.offsetY
-    };
-});
-
-document.addEventListener('mouseup', function (e) {
-    isDragging = false;
-});
-
-// Utility function to convert degrees to radians
-function toRadians(angle) {
-    return angle * (Math.PI / 180);
-}
 
     </script>
 </body>
