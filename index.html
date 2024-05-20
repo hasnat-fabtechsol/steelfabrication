@@ -48,17 +48,22 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-     
-     var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    
-    // Set camera to a side view, elevated and looking at the center of the scene
-    camera.position.set(700, 300, 100); // Adjust the X, Y, Z coordinates for best viewing angle
-    camera.lookAt(new THREE.Vector3(0, 200, 0)); // Adjust to focus on the center or relevant part of the scene
 
-    var renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+        var xAxisSlider = document.getElementById("xAxis");
+        var zAxisSlider = document.getElementById("zAxis");
+        var thicknessSelect = document.getElementById("thickness");
+        var holeDiameterSelect = document.getElementById("holeDiameter");
+
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        // Set camera to a side view, elevated and looking at the center of the scene
+        camera.position.set(700, 300, 100); // Adjust the X, Y, Z coordinates for best viewing angle
+        camera.lookAt(new THREE.Vector3(0, 200, 0)); // Adjust to focus on the center or relevant part of the scene
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
         // Create first baseplate
         var geometry = new THREE.BoxGeometry(300, 12, 300);
         var material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
@@ -77,12 +82,62 @@
         supcol.position.y = 250;
         scene.add(supcol);
 
-     
 
-        var xAxisSlider = document.getElementById("xAxis");
-        var zAxisSlider = document.getElementById("zAxis");
-        var thicknessSelect = document.getElementById("thickness");
-        var holeDiameterSelect = document.getElementById("holeDiameter");
+
+        // Define hole parameters
+        var holeDiameter = parseFloat(holeDiameterSelect.value);  // Ensure this is defined or replace with a static value
+        var thickness = parseFloat(thicknessSelect.value);  // Ensure this is defined or replace with a static value
+
+        // Geometry for holes
+        var holeGeometry = new THREE.CylinderGeometry(holeDiameter / 2, holeDiameter / 2, 12, 32);
+        var holeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+
+   // Add holes to the baseplates and support column
+for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
+        var hole = new THREE.Mesh(holeGeometry, holeMaterial);
+        hole.userData.isHole = true;
+        hole.position.x = (i % 2 === 0) ? (-150 + 20) : (150 - 20);
+        hole.position.y = (thickness / 2) + 2;
+        hole.position.z = (j % 2 === 0) ? (-150 + 20) : (150 - 20);
+        scene.add(hole);
+
+        var topHole = new THREE.Mesh(holeGeometry, holeMaterial);
+        topHole.userData.isHole = true;
+        topHole.position.copy(hole.position);
+        topHole.position.y += 500;
+        scene.add(topHole);
+
+        // Add holes to the support column
+        if (i < 2) {  // Ensure two holes are positioned horizontally for each row
+            for (let k = 0; k < 5; k++) {  // Five rows of holes
+                // var supcolHoleLeft = new THREE.Mesh(holeGeometry, holeMaterial);
+                // supcolHoleLeft.userData.isHole = true;
+                // supcolHoleLeft.position.x = -50;  // Fixed x position for left column
+                // supcolHoleLeft.position.y = 50 + k * 100;  // Vertical spacing of 100 units starting from 50
+                // supcolHoleLeft.position.z = 10;  // Fixed Z position
+                // scene.add(supcolHoleLeft);
+
+                var supcolHoleLeft = new THREE.Mesh(holeGeometry, holeMaterial);
+                supcolHoleLeft.userData.isHole = true;
+                supcolHoleLeft.position.x = 50;  // Fixed x position for right column
+                supcolHoleLeft.position.y = 50 + k * 100;  // Vertical spacing of 100 units starting from 50
+                supcolHoleLeft.position.z = 30;  // Fixed Z position
+                scene.add(supcolHoleLeft);
+                var supcolHoleRight = new THREE.Mesh(holeGeometry, holeMaterial);
+                supcolHoleRight.userData.isHole = true;
+                supcolHoleRight.position.x = 50;  // Fixed x position for right column
+                supcolHoleRight.position.y = 50 + k * 100;  // Vertical spacing of 100 units starting from 50
+                supcolHoleRight.position.z = -30;  // Fixed Z position
+                scene.add(supcolHoleRight);
+            }
+        }
+    }
+}
+
+
+
+
 
         function updateBaseplate() {
             var thickness = parseFloat(thicknessSelect.value);
