@@ -468,6 +468,11 @@ function createBoxTop() {
 // }
 
 function createHoles() {
+
+    if (createdHoles) {
+        createdHoles.forEach(hole => scene.remove(hole));
+        createdHoles = [];
+    }
     const circleRadius = 0.05; // Radius of the circles
     const circleSegments = 32; // Number of segments, making the circle appear smooth
 
@@ -507,8 +512,21 @@ function createHoles() {
         scene.add(circle);
         createdHoles.push(circle); // Store reference to remove later if needed
     });
+    createdHoles = createdHoles.filter(hole => {
+        if (checkOverlap(hole)) {
+            scene.remove(hole);
+            return false;
+        }
+        return true;
+    });
 }
 
+function checkOverlap(circle) {
+    const circleBounds = new THREE.Box3().setFromObject(circle);
+    const uprightBoxBounds = new THREE.Box3().setFromObject(createdUprightBox);
+
+    return circleBounds.intersectsBox(uprightBoxBounds);
+}
 
 
        
@@ -537,6 +555,7 @@ function createHoles() {
             }
 
             function onDragEnd(event) {
+                createHoles();
                 controls.enabled = true; // Re-enable orbit controls
 
                 // Remove distance lines
