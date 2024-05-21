@@ -367,7 +367,8 @@
                 }
             }
 
-            function createBoxTop() {
+
+function createBoxTop() {
                 if (createdUprightBox) {
                     const boxGeometry = new THREE.BoxGeometry(0.6, 0.012, 0.6); // Adjusted to meters
                     const boxMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
@@ -434,6 +435,84 @@
                 }
             }
 
+//             function createHoles(){
+//     const circleRadius = 0.05;  // Radius of the circles
+//     const circleSegments = 32;  // Number of segments, making the circle appear smooth
+
+//     // Create the circle geometry
+//     const circleGeometry = new THREE.CircleGeometry(circleRadius, circleSegments);
+
+//     // Create the material for the circles
+//     const circleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Green color
+//     const baseHeight = 0.2; // Height of the base plate, adjust accordingly
+
+//     // Offsets should place circles just outside the edges of the createdBox
+//     const xOffset = createdBox.scale.x / 2 + circleRadius; // Half the width of the base plate + radius of circle
+//     const zOffset = createdBox.scale.z / 2 + circleRadius; // Half the depth of the base plate + radius of circle
+
+//     const positions = [
+//         { x: xOffset, z: zOffset },
+//         { x: -xOffset, z: zOffset },
+//         { x: xOffset, z: -zOffset },
+//         { x: -xOffset, z: -zOffset }
+//     ];
+
+//     positions.forEach(pos => {
+//         const circle = new THREE.Mesh(circleGeometry, circleMaterial);
+//         circle.position.x = createdBox.position.x + pos.x;
+//         circle.position.y = createdBox.position.y + baseHeight / 2; // Positioned on top of the base plate
+//         circle.position.z = createdBox.position.z + pos.z;
+//         circle.rotation.x = -(Math.PI / 2); // Rotate to lay flat
+//         scene.add(circle);
+//     });
+// }
+
+function createHoles() {
+    const circleRadius = 0.05; // Radius of the circles
+    const circleSegments = 32; // Number of segments, making the circle appear smooth
+
+    // Create the circle geometry
+    const circleGeometry = new THREE.CircleGeometry(circleRadius, circleSegments);
+
+    // Create the material for the circles
+    const circleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Green color
+
+    // Ensure any previous holes are removed before creating new ones
+    if (createdHoles) {
+        createdHoles.forEach(hole => scene.remove(hole));
+        createdHoles = [];
+    } else {
+        createdHoles = [];
+    }
+
+    // Positions relative to the current size of the box
+    const xOffset = createdBox.scale.x * 0.6 / 3; // Dynamic calculation based on current scale
+    const zOffset = createdBox.scale.z * 0.6 / 3; // Dynamic calculation based on current scale
+
+    const positions = [
+        { x: xOffset, z: zOffset },
+        { x: -xOffset, z: zOffset },
+        { x: xOffset, z: -zOffset },
+        { x: -xOffset, z: -zOffset }
+    ];
+    0, 0.006 + 1.35, 0
+
+    positions.forEach(pos => {
+        const circle = new THREE.Mesh(circleGeometry, circleMaterial);
+        circle.position.x = createdBox.position.x + pos.x;
+        circle.position.y = createdBox.position.y+0.007  // Adjusted height
+        circle.position.z = createdBox.position.z + pos.z;
+        // 0, 0.006 + 1.35, 0
+        circle.rotation.x = -(Math.PI / 2); // Rotate to lay flat
+        scene.add(circle);
+        createdHoles.push(circle); // Store reference to remove later if needed
+    });
+}
+
+
+
+       
+       
             function onDragStart(event) {
                 controls.enabled = false; // Disable orbit controls
 
@@ -508,6 +587,7 @@
             let createdUprightBox = null;
             let createdCleat = null;
             let createdBoxTop = null
+            let createdHoles = []
             let dragControls, cleatDragControls;
             let distanceLine1, distanceLine2;
             const distanceLabel1 = document.getElementById('distanceLabel1');
@@ -516,7 +596,10 @@
             const distanceValue2 = document.getElementById('distanceValue2');
 
             // Camera position
-            camera.position.z = 10;  // Ensure the camera can see the buttons
+            // camera.position.z = 12;  // Ensure the camera can see the buttons
+            camera.position.z = 1;  // Ensure the camera can see the buttons
+            camera.position.y = 1;  // Ensure the camera can see the buttons
+            // camera.position.x = 5;  // Ensure the camera can see the buttons
 
             // Animation loop
             function animate() {
@@ -586,6 +669,8 @@
             createUprightBox()
             createBoxTop()
             createCleat()
+            createHoles()
+
         });
     </script>
 </body>
