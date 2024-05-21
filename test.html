@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Three.js Steel Industry Configuration</title>
     <style>
-        body { margin: 0; }
-        canvas { display: block; }
-        #distanceLabel1, #distanceLabel2 {
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #distanceLabel1,
+        #distanceLabel2 {
             position: absolute;
             color: white;
             background-color: black;
@@ -29,516 +37,557 @@
     }
     </script>
 </head>
+
 <body>
-<div id="distanceLabel1"><span id="distanceValue1"></span></div>
-<div id="distanceLabel2"><span id="distanceValue2"></span></div>
-<script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-    import { DragControls } from 'three/examples/jsm/controls/DragControls.js';
-    import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-    import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
+    <div id="distanceLabel1"><span id="distanceValue1"></span></div>
+    <div id="distanceLabel2"><span id="distanceValue2"></span></div>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+        import { DragControls } from 'three/examples/jsm/controls/DragControls.js';
+        import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+        import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 
-    // Scene, Camera, Renderer
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+        // Scene, Camera, Renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0x404040);
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(10, 10, 10);
-    scene.add(directionalLight);
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(10, 10, 10);
+        scene.add(directionalLight);
 
-    // OrbitControls
-    const controls = new OrbitControls(camera, renderer.domElement);
+        // OrbitControls
+        const controls = new OrbitControls(camera, renderer.domElement);
 
-    let font;
-    const loader = new FontLoader();
-    loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (loadedFont) {
-        font = loadedFont;
+        let font;
+        const loader = new FontLoader();
+        loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (loadedFont) {
+            font = loadedFont;
 
-        // Load font and create 3D text
-        function create3DText(text, size, height, position) {
-            const textGeometry = new TextGeometry(text, {
-                font: font,
-                size: size,
-                height: height,
-            });
-            const textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-            const mesh = new THREE.Mesh(textGeometry, textMaterial);
-            mesh.position.copy(position);
-            scene.add(mesh);
-            return mesh;
-        }
-
-        // Create sliders for x and z dimensions
-        function createSlider(name, position, rotation) {
-            const sliderGeometry = new THREE.BoxGeometry(0.6, 0.01, 0.02);
-            const sliderMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-            const slider = new THREE.Mesh(sliderGeometry, sliderMaterial);
-            slider.position.copy(position);
-            if (rotation) slider.rotation.copy(rotation);
-            slider.name = name;
-            scene.add(slider);
-            return slider;
-        }
-
-        function createVerticalSlider(name, position) {
-            const sliderGeometry = new THREE.BoxGeometry(0.02, 1.2, 0.02);
-            const sliderMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-            const slider = new THREE.Mesh(sliderGeometry, sliderMaterial);
-            slider.position.copy(position);
-            slider.name = name;
-            scene.add(slider);
-            return slider;
-        }
-
-        function createBox() {
-            const boxGeometry = new THREE.BoxGeometry(0.6, 0.012, 0.6); // Adjusted to meters
-            const boxMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
-            const box = new THREE.Mesh(boxGeometry, boxMaterial);
-            box.position.set(0, 0.006, 0); // Center the box at the origin and adjust height
-            scene.add(box);
-            createdBox = box; // Store the reference to the created box
+            // Load font and create 3D text
+            function create3DText(text, size, height, position) {
+                const textGeometry = new TextGeometry(text, {
+                    font: font,
+                    size: size,
+                    height: height,
+                });
+                const textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+                const mesh = new THREE.Mesh(textGeometry, textMaterial);
+                mesh.position.copy(position);
+                scene.add(mesh);
+                return mesh;
+            }
 
             // Create sliders for x and z dimensions
-            const xSlider = createSlider('X_SLIDER', new THREE.Vector3(0, 0.1, -0.8), null);
-            const zSlider = createSlider('Z_SLIDER', new THREE.Vector3(0.8, 0.1, 0), new THREE.Euler(0, Math.PI / 2, 0));
+            function createSlider(name, position, rotation) {
+                const sliderGeometry = new THREE.BoxGeometry(0.6, 0.01, 0.02);
+                const sliderMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+                const slider = new THREE.Mesh(sliderGeometry, sliderMaterial);
+                slider.position.copy(position);
+                if (rotation) slider.rotation.copy(rotation);
+                slider.name = name;
+                scene.add(slider);
+                return slider;
+            }
 
-            // Add labels for sliders
-            const xLabel = create3DText('600 mm', 0.05, 0.01, new THREE.Vector3(0, 0.15, -0.8));
-            const zLabel = create3DText('600 mm', 0.05, 0.01, new THREE.Vector3(0.8, 0.15, 0));
+            function createVerticalSlider(name, position) {
+                const sliderGeometry = new THREE.BoxGeometry(0.02, 1.2, 0.02);
+                const sliderMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+                const slider = new THREE.Mesh(sliderGeometry, sliderMaterial);
+                slider.position.copy(position);
+                slider.name = name;
+                scene.add(slider);
+                return slider;
+            }
 
-            // Enable dragging for sliders
-            const sliders = [xSlider, zSlider];
-            dragControls = new DragControls(sliders, camera, renderer.domElement);
-            dragControls.addEventListener('dragstart', function (event) {
-                controls.enabled = false; // Disable orbit controls
-            });
+            function createBox() {
+                const boxGeometry = new THREE.BoxGeometry(0.6, 0.012, 0.6); // Adjusted to meters
+                const boxMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
+                const box = new THREE.Mesh(boxGeometry, boxMaterial);
+                box.position.set(0, 0.006, 0); // Center the box at the origin and adjust height
+                scene.add(box);
+                createdBox = box; // Store the reference to the created box
 
-            dragControls.addEventListener('dragend', function (event) {
-                controls.enabled = true; // Re-enable orbit controls
-                updateUprightBoxConstraints(); // Update constraints after changing the base box size
-            });
+                // Create sliders for x and z dimensions
+                const xSlider = createSlider('X_SLIDER', new THREE.Vector3(0, 0.1, -0.8), null);
+                const zSlider = createSlider('Z_SLIDER', new THREE.Vector3(0.8, 0.1, 0), new THREE.Euler(0, Math.PI / 2, 0));
 
-            dragControls.addEventListener('drag', function (event) {
-                if (event.object.name === 'X_SLIDER') {
-                    const newX = THREE.MathUtils.clamp(event.object.position.x, -0.3, 0.3);
-                    event.object.position.x = newX;
-                    event.object.position.y = 0.1; // Lock movement to the x plane
-                    event.object.position.z = -0.8; // Lock movement to the x plane
-                    createdBox.scale.x = (newX + 0.3) / 0.6;
-                    xLabel.geometry.dispose(); // Dispose old geometry
-                    xLabel.geometry = new TextGeometry(`${(createdBox.scale.x * 600).toFixed(0)} mm`, {
-                        font: font,
-                        size: 0.05,
-                        height: 0.01,
-                    });
-                } else if (event.object.name === 'Z_SLIDER') {
-                    const newZ = THREE.MathUtils.clamp(event.object.position.z, -0.3, 0.3);
-                    event.object.position.z = newZ;
-                    event.object.position.y = 0.1; // Lock movement to the z plane
-                    event.object.position.x = 0.8; // Lock movement to the z plane
-                    createdBox.scale.z = (newZ + 0.3) / 0.6;
-                    zLabel.geometry.dispose(); // Dispose old geometry
-                    zLabel.geometry = new TextGeometry(`${(createdBox.scale.z * 600).toFixed(0)} mm`, {
-                        font: font,
-                        size: 0.05,
-                        height: 0.01,
-                    });
-                }
-            });
-        }
-     
-        function updateUprightBoxConstraints() {
-            if (createdUprightBox && createdBox) {
-                const boxWidth = createdBox.scale.x * 0.6;
-                const boxDepth = createdBox.scale.z * 0.6;
-                const uprightBoxHalfWidth = 0.05;
-                const uprightBoxHalfDepth = 0.05;
+                // Add labels for sliders
+                const xLabel = create3DText('600 mm', 0.05, 0.01, new THREE.Vector3(0, 0.15, -0.8));
+                const zLabel = create3DText('600 mm', 0.05, 0.01, new THREE.Vector3(0.8, 0.15, 0));
 
-                // Update constraints for the upright box
-                const minX = createdBox.position.x - (boxWidth / 2) + uprightBoxHalfWidth;
-                const maxX = createdBox.position.x + (boxWidth / 2) - uprightBoxHalfWidth;
-                const minZ = createdBox.position.z - (boxDepth / 2) + uprightBoxHalfDepth;
-                const maxZ = createdBox.position.z + (boxDepth / 2) - uprightBoxHalfDepth;
+                // Enable dragging for sliders
+                const sliders = [xSlider, zSlider];
+                dragControls = new DragControls(sliders, camera, renderer.domElement);
+                dragControls.addEventListener('dragstart', function (event) {
+                    controls.enabled = false; // Disable orbit controls
+                });
 
-                createdUprightBox.position.x = THREE.MathUtils.clamp(createdUprightBox.position.x, minX, maxX);
-                createdUprightBox.position.z = THREE.MathUtils.clamp(createdUprightBox.position.z, minZ, maxZ);
-                if (createdCleat) {
-                    createdCleat.position.y = createdUprightBox.position.y + (createdUprightBox.scale.y * 1.35); // Keep the cleat in the middle
+                dragControls.addEventListener('dragend', function (event) {
+                    controls.enabled = true; // Re-enable orbit controls
+                    updateUprightBoxConstraints(); // Update constraints after changing the base box size
+                });
+
+                dragControls.addEventListener('drag', function (event) {
+                    if (event.object.name === 'X_SLIDER') {
+                        const newX = THREE.MathUtils.clamp(event.object.position.x, -0.3, 0.3);
+                        event.object.position.x = newX;
+                        event.object.position.y = 0.1; // Lock movement to the x plane
+                        event.object.position.z = -0.8; // Lock movement to the x plane
+                        createdBox.scale.x = (newX + 0.3) / 0.6;
+                        xLabel.geometry.dispose(); // Dispose old geometry
+                        xLabel.geometry = new TextGeometry(`${(createdBox.scale.x * 600).toFixed(0)} mm`, {
+                            font: font,
+                            size: 0.05,
+                            height: 0.01,
+                        });
+                    } else if (event.object.name === 'Z_SLIDER') {
+                        const newZ = THREE.MathUtils.clamp(event.object.position.z, -0.3, 0.3);
+                        event.object.position.z = newZ;
+                        event.object.position.y = 0.1; // Lock movement to the z plane
+                        event.object.position.x = 0.8; // Lock movement to the z plane
+                        createdBox.scale.z = (newZ + 0.3) / 0.6;
+                        zLabel.geometry.dispose(); // Dispose old geometry
+                        zLabel.geometry = new TextGeometry(`${(createdBox.scale.z * 600).toFixed(0)} mm`, {
+                            font: font,
+                            size: 0.05,
+                            height: 0.01,
+                        });
+                    }
+                });
+            }
+
+            function updateUprightBoxConstraints() {
+                if (createdUprightBox && createdBox) {
+                    const boxWidth = createdBox.scale.x * 0.6;
+                    const boxDepth = createdBox.scale.z * 0.6;
+                    const uprightBoxHalfWidth = 0.05;
+                    const uprightBoxHalfDepth = 0.05;
+
+                    // Update constraints for the upright box
+                    const minX = createdBox.position.x - (boxWidth / 2) + uprightBoxHalfWidth;
+                    const maxX = createdBox.position.x + (boxWidth / 2) - uprightBoxHalfWidth;
+                    const minZ = createdBox.position.z - (boxDepth / 2) + uprightBoxHalfDepth;
+                    const maxZ = createdBox.position.z + (boxDepth / 2) - uprightBoxHalfDepth;
+
+                    createdUprightBox.position.x = THREE.MathUtils.clamp(createdUprightBox.position.x, minX, maxX);
+                    createdUprightBox.position.z = THREE.MathUtils.clamp(createdUprightBox.position.z, minZ, maxZ);
+                    if (createdCleat) {
+                        createdCleat.position.y = createdUprightBox.position.y + (createdUprightBox.scale.y * 1.35); // Keep the cleat in the middle
+                    }
                 }
             }
-        }
 
-        // Add event listener for mouse clicks
-        window.addEventListener('click', onMouseClick, false);
+            // Add event listener for mouse clicks
+            window.addEventListener('click', onMouseClick, false);
 
-        function onMouseClick(event) {
-            // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            function onMouseClick(event) {
+                // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-            // Update the raycaster with the camera and mouse position
-            raycaster.setFromCamera(mouse, camera);
+                // Update the raycaster with the camera and mouse position
+                raycaster.setFromCamera(mouse, camera);
 
-            // Calculate objects intersecting the picking ray
-            const intersects = raycaster.intersectObjects(scene.children);
+                // Calculate objects intersecting the picking ray
+                const intersects = raycaster.intersectObjects(scene.children);
 
-            for (let i = 0; i < intersects.length; i++) {
-                if (intersects[i].object.name === 'BOX_BUTTON') {
-                    createBox();
-                    break;  // Exit the loop after finding the button
-                }
-                if (intersects[i].object.name === 'BOX_BUTTON_TOP') {
-                    createBoxTop();
-                    break;  // Exit the loop after finding the button
-                }
-                 else if (intersects[i].object.name === 'UPRIGHT_BOX_BUTTON') {
-                    createUprightBox();
-                    break;  // Exit the loop after finding the button
-                } else if (intersects[i].object.name === 'CLEAT_BUTTON') {
-                    createCleat();
-                    break;  // Exit the loop after finding the button
+                for (let i = 0; i < intersects.length; i++) {
+                    if (intersects[i].object.name === 'BOX_BUTTON') {
+                        createBox();
+                        break;  // Exit the loop after finding the button
+                    }
+                    if (intersects[i].object.name === 'BOX_BUTTON_TOP') {
+                        createBoxTop();
+                        break;  // Exit the loop after finding the button
+                    }
+                    else if (intersects[i].object.name === 'UPRIGHT_BOX_BUTTON') {
+                        createUprightBox();
+                        break;  // Exit the loop after finding the button
+                    } else if (intersects[i].object.name === 'CLEAT_BUTTON') {
+                        createCleat();
+                        break;  // Exit the loop after finding the button
+                    }
                 }
             }
-        }
 
-        function createUprightBox() {
-            if (createdBox && !createdUprightBox) {
-                const uprightBoxGeometry = new THREE.BoxGeometry(0.1, 2.7, 0.1); // Adjusted to meters
-                const uprightBoxMaterial = new THREE.MeshStandardMaterial({ color: 0x555555 });
-                const uprightBox = new THREE.Mesh(uprightBoxGeometry, uprightBoxMaterial);
+            function createUprightBox() {
+                if (createdBox && !createdUprightBox) {
+                    const uprightBoxGeometry = new THREE.BoxGeometry(0.1, 2.7, 0.1); // Adjusted to meters
+                    const uprightBoxMaterial = new THREE.MeshStandardMaterial({ color: 0x555555 });
+                    const uprightBox = new THREE.Mesh(uprightBoxGeometry, uprightBoxMaterial);
 
-                // Position the upright box on top of the created box
-                uprightBox.position.set(0, 0.006 + 1.35, 0); // Position at the center and adjust height
-                scene.add(uprightBox);
-                createdUprightBox = uprightBox; // Store the reference to the created upright box
+                    // Position the upright box on top of the created box
+                    uprightBox.position.set(0, 0.006 + 1.35, 0); // Position at the center and adjust height
+                    scene.add(uprightBox);
+                    createdUprightBox = uprightBox; // Store the reference to the created upright box
 
-                // Create vertical slider for height adjustment
-                const ySlider = createVerticalSlider('Y_SLIDER', new THREE.Vector3(1.5, 1.35, 0));
-                const minLabel = create3DText('300 mm', 0.05, 0.01, new THREE.Vector3(1.55, 0.3, 0));
-                const maxLabel = create3DText('2700 mm', 0.05, 0.01, new THREE.Vector3(1.55, 2.7, 0));
-                const yLabel = create3DText('2700 mm', 0.05, 0.01, new THREE.Vector3(1.55, 1.35, 0));
+                    // Create vertical slider for height adjustment
+                    const ySlider = createVerticalSlider('Y_SLIDER', new THREE.Vector3(1.5, 1.35, 0));
+                    const minLabel = create3DText('300 mm', 0.05, 0.01, new THREE.Vector3(1.55, 0.3, 0));
+                    const maxLabel = create3DText('2700 mm', 0.05, 0.01, new THREE.Vector3(1.55, 2.7, 0));
+                    const yLabel = create3DText('2700 mm', 0.05, 0.01, new THREE.Vector3(1.55, 1.35, 0));
 
-                // Enable dragging for upright box and vertical slider
-                const dragItems = [uprightBox, ySlider];
-                dragControls = new DragControls(dragItems, camera, renderer.domElement);
-                dragControls.addEventListener('dragstart', onDragStart);
-                dragControls.addEventListener('dragend', onDragEnd);
-                dragControls.addEventListener('drag', (event) => {
-                    if (createdUprightBox && createdBox) {
-                        // Constrain the upright box to move only within the x and z plane
-                        const boxWidth = createdBox.scale.x * 0.6;
-                        const boxDepth = createdBox.scale.z * 0.6;
-                        const uprightBoxHalfWidth = 0.05;
-                        const uprightBoxHalfDepth = 0.05;
+                    // Enable dragging for upright box and vertical slider
+                    const dragItems = [uprightBox, ySlider];
+                    dragControls = new DragControls(dragItems, camera, renderer.domElement);
+                    dragControls.addEventListener('dragstart', onDragStart);
+                    dragControls.addEventListener('dragend', onDragEnd);
+                    dragControls.addEventListener('drag', (event) => {
+                        if (createdUprightBox && createdBox) {
+                            // Constrain the upright box to move only within the x and z plane
+                            const boxWidth = createdBox.scale.x * 0.6;
+                            const boxDepth = createdBox.scale.z * 0.6;
+                            const uprightBoxHalfWidth = 0.05;
+                            const uprightBoxHalfDepth = 0.05;
 
-                        // Update constraints for the upright box
-                        const minX = createdBox.position.x - (boxWidth / 2) + uprightBoxHalfWidth;
-                        const maxX = createdBox.position.x + (boxWidth / 2) - uprightBoxHalfWidth;
-                        const minZ = createdBox.position.z - (boxDepth / 2) + uprightBoxHalfDepth;
-                        const maxZ = createdBox.position.z + (boxDepth / 2) - uprightBoxHalfDepth;
+                            // Update constraints for the upright box
+                            const minX = createdBox.position.x - (boxWidth / 2) + uprightBoxHalfWidth;
+                            const maxX = createdBox.position.x + (boxWidth / 2) - uprightBoxHalfWidth;
+                            const minZ = createdBox.position.z - (boxDepth / 2) + uprightBoxHalfDepth;
+                            const maxZ = createdBox.position.z + (boxDepth / 2) - uprightBoxHalfDepth;
 
-                        if (event.object.name === 'Y_SLIDER') {
-                            const newY = THREE.MathUtils.clamp(event.object.position.y, 0.3, 2.7);
-                            event.object.position.y = newY;
-                            event.object.position.x = 1.5; // Lock movement to the y plane
-                            event.object.position.z = 0; // Lock movement to the y plane
-                            createdUprightBox.scale.y = (newY - 0.006) / 2.7;
-                            createdUprightBox.position.y = 0.006 + 1.35 * createdUprightBox.scale.y; // Ensure Y position stays constant
-                            yLabel.geometry.dispose(); // Dispose old geometry
-                            yLabel.geometry = new TextGeometry(`${(createdUprightBox.scale.y * 2700).toFixed(0)} mm`, {
+                            if (event.object.name === 'Y_SLIDER') {
+                                const newY = THREE.MathUtils.clamp(event.object.position.y, 0.3, 2.7);
+                                event.object.position.y = newY;
+                                event.object.position.x = 1.5; // Lock movement to the y plane
+                                event.object.position.z = 0; // Lock movement to the y plane
+                                createdUprightBox.scale.y = (newY - 0.006) / 2.7;
+                                createdUprightBox.position.y = 0.006 + 1.35 * createdUprightBox.scale.y; // Ensure Y position stays constant
+                                yLabel.geometry.dispose(); // Dispose old geometry
+                                yLabel.geometry = new TextGeometry(`${(createdUprightBox.scale.y * 2700).toFixed(0)} mm`, {
+                                    font: font,
+                                    size: 0.05,
+                                    height: 0.01,
+                                });
+                                yLabel.position.set(1.55, newY, 0);
+                            } else {
+                                createdUprightBox.position.x = THREE.MathUtils.clamp(event.object.position.x, minX, maxX);
+                                createdUprightBox.position.z = THREE.MathUtils.clamp(event.object.position.z, minZ, maxZ);
+                                createdUprightBox.position.y = 0.006 + 1.35 * createdUprightBox.scale.y; // Ensure Y position stays constant
+                            }
+
+                            // Calculate the front right corner of the upright box
+                            const frontRightCorner = new THREE.Vector3(createdUprightBox.position.x + uprightBoxHalfWidth, createdBox.position.y + 0.006, createdUprightBox.position.z - uprightBoxHalfDepth);
+
+                            // Define the front and right edges of the base box
+                            const frontEdge = new THREE.Vector3(frontRightCorner.x, createdBox.position.y + 0.006, createdBox.position.z - boxDepth / 2);
+                            const rightEdge = new THREE.Vector3(createdBox.position.x + boxWidth / 2, createdBox.position.y + 0.006, frontRightCorner.z);
+
+                            // Calculate distances in millimeters
+                            const distance1 = frontRightCorner.distanceTo(frontEdge) * 1000;
+                            const distance2 = frontRightCorner.distanceTo(rightEdge) * 1000;
+
+                            // Update distance lines
+                            distanceLine1.geometry.setFromPoints([frontRightCorner, frontEdge]);
+                            distanceLine2.geometry.setFromPoints([frontRightCorner, rightEdge]);
+
+                            // Update distance labels
+                            distanceValue1.textContent = `${distance1.toFixed(0)} mm`;
+                            distanceValue2.textContent = `${distance2.toFixed(0)} mm`;
+
+                            const distanceLabel1Position = toScreenPosition(frontRightCorner.clone().lerp(frontEdge, 0.5), camera);
+                            const distanceLabel2Position = toScreenPosition(frontRightCorner.clone().lerp(rightEdge, 0.5), camera);
+
+                            // Adjust positions to avoid overlap
+                            adjustLabelPositions(distanceLabel1, distanceLabel1Position, distanceLabel2, distanceLabel2Position);
+
+                            distanceLabel1.style.left = `${distanceLabel1Position.x}px`;
+                            distanceLabel1.style.top = `${distanceLabel1Position.y}px`;
+
+                            distanceLabel2.style.left = `${distanceLabel2Position.x}px`;
+                            distanceLabel2.style.top = `${distanceLabel2Position.y}px`;
+                        }
+                    });
+                } else {
+                    console.log('No base box found or upright box already exists. Please create a base box first and only one upright box is allowed.');
+                }
+            }
+
+            function createCleat(direction = "left") {
+                if (createdUprightBox ) {
+
+                    let x = createdUprightBox.position.x + 0.1,
+                        y = (createdUprightBox.position.y + (createdUprightBox.scale.y)),
+                        z = createdUprightBox.position.z
+
+
+                    // const boxGeometry = new THREE.BoxGeometry(0.012, 0.1, 0.1); // Adjusted to meters
+                    // const cleatGeometry = new THREE.BoxGeometry(0.6, 0.012, 0.6); // Adjusted to meters
+                    // 0.1, 2.7, 0.1
+                    const cleatGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.01); // Adjusted to meters
+                    const cleatMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+                    const cleat = new THREE.Mesh(cleatGeometry, cleatMaterial);
+
+                    // Position the cleat on the x-facing face of the upright box
+                    // cleat.position.set(0, 0.006, 0); // Center the box at the origin and adjust height
+
+                    cleat.position.set(x,
+                        y,
+                        -0.05); // Center the cleat and adjust height
+                    scene.add(cleat);
+                    createdCleat = cleat; // Store the reference to the created cleat
+
+                    // Enable dragging for the cleat
+                    const dragItems = [cleat];
+                    cleatDragControls = new DragControls(dragItems, camera, renderer.domElement);
+                    cleatDragControls.addEventListener('dragstart', function (event) {
+                        controls.enabled = false; // Disable orbit controls
+                    });
+                    cleatDragControls.addEventListener('dragend', function (event) {
+                        controls.enabled = true; // Re-enable orbit controls
+                    });
+                    cleatDragControls.addEventListener('drag', (event) => {
+                        if (createdCleat && createdUprightBox) {
+                            // Constrain the cleat to move only within the x and z plane of the upright box
+                            const uprightBoxHalfWidth = 0.05;
+                            const uprightBoxHalfDepth = 0.05;
+                            const minY = createdUprightBox.position.y;
+                            const maxY = createdUprightBox.position.y + (createdUprightBox.scale.y * 2.7);
+
+                            event.object.position.y = THREE.MathUtils.clamp(event.object.position.y, minY, maxY);
+                            event.object.position.x = x; // Lock movement to the x face of the upright box
+
+                            const zPositions = [-0.05, 0, 0.05];
+        event.object.position.z = zPositions.reduce((prev, curr) => 
+            (Math.abs(curr - event.object.position.z) < Math.abs(prev - event.object.position.z) ? curr : prev));
+
+                            // event.object.position.z = THREE.MathUtils.clamp(event.object.position.z, -0.05, 0.05); // Lock movement to the x face of the upright box
+                            // event.object.position.z = z; // Lock movement to the x face of the upright box
+                        }
+                    });
+                } else {
+                    console.log('No upright box found or cleat already exists. Please create an upright box first and only one cleat is allowed.');
+                }
+            }
+
+            function createBoxTop() {
+                if (createdUprightBox) {
+                    const boxGeometry = new THREE.BoxGeometry(0.6, 0.012, 0.6); // Adjusted to meters
+                    const boxMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
+                    const box = new THREE.Mesh(boxGeometry, boxMaterial);
+
+                    // Position the box top with the same coordinates as the upright box
+                    const uprightBoxHeight = createdUprightBox.scale.y * 2.7;
+                    box.position.set(createdUprightBox.position.x, createdUprightBox.position.y + (uprightBoxHeight / 2) + 0.006, createdUprightBox.position.z);
+                    scene.add(box);
+                    createdBoxTop = box; // Store the reference to the created box top
+
+                    // Calculate the top position of the box for the sliders
+                    const boxTopYPosition = box.position.y + (0.012 / 2) + 0.1;
+
+                    // Create sliders for x and z dimensions
+                    const xSlider = createSlider('X_SLIDER', new THREE.Vector3(box.position.x, boxTopYPosition, box.position.z - 0.8), null);
+                    const zSlider = createSlider('Z_SLIDER', new THREE.Vector3(box.position.x + 0.8, boxTopYPosition, box.position.z), new THREE.Euler(0, Math.PI / 2, 0));
+
+                    // Add labels for sliders
+                    const xLabel = create3DText('600 mm', 0.05, 0.01, new THREE.Vector3(box.position.x, boxTopYPosition + 0.05, box.position.z - 0.8));
+                    const zLabel = create3DText('600 mm', 0.05, 0.01, new THREE.Vector3(box.position.x + 0.8, boxTopYPosition + 0.05, box.position.z));
+
+                    // Enable dragging for sliders
+                    const sliders = [xSlider, zSlider];
+                    dragControls = new DragControls(sliders, camera, renderer.domElement);
+                    dragControls.addEventListener('dragstart', function (event) {
+                        controls.enabled = false; // Disable orbit controls
+                    });
+
+                    dragControls.addEventListener('dragend', function (event) {
+                        controls.enabled = true; // Re-enable orbit controls
+                        updateUprightBoxConstraints(); // Update constraints after changing the base box size
+                    });
+
+                    dragControls.addEventListener('drag', function (event) {
+                        if (event.object.name === 'X_SLIDER') {
+                            const newX = THREE.MathUtils.clamp(event.object.position.x, -0.3, 0.3);
+                            event.object.position.x = newX;
+                            event.object.position.y = boxTopYPosition; // Lock movement to the x plane
+                            event.object.position.z = box.position.z - 0.8; // Lock movement to the x plane
+                            createdBoxTop.scale.x = (newX + 0.3) / 0.6;
+                            xLabel.geometry.dispose(); // Dispose old geometry
+                            xLabel.geometry = new TextGeometry(`${(createdBoxTop.scale.x * 600).toFixed(0)} mm`, {
                                 font: font,
                                 size: 0.05,
                                 height: 0.01,
                             });
-                            yLabel.position.set(1.55, newY, 0);
-                        } else {
-                            createdUprightBox.position.x = THREE.MathUtils.clamp(event.object.position.x, minX, maxX);
-                            createdUprightBox.position.z = THREE.MathUtils.clamp(event.object.position.z, minZ, maxZ);
-                            createdUprightBox.position.y = 0.006 + 1.35 * createdUprightBox.scale.y; // Ensure Y position stays constant
+                        } else if (event.object.name === 'Z_SLIDER') {
+                            const newZ = THREE.MathUtils.clamp(event.object.position.z, -0.3, 0.3);
+                            event.object.position.z = newZ;
+                            event.object.position.y = boxTopYPosition; // Lock movement to the z plane
+                            event.object.position.x = box.position.x + 0.8; // Lock movement to the z plane
+                            createdBoxTop.scale.z = (newZ + 0.3) / 0.6;
+                            zLabel.geometry.dispose(); // Dispose old geometry
+                            zLabel.geometry = new TextGeometry(`${(createdBoxTop.scale.z * 600).toFixed(0)} mm`, {
+                                font: font,
+                                size: 0.05,
+                                height: 0.01,
+                            });
                         }
-
-                        // Calculate the front right corner of the upright box
-                        const frontRightCorner = new THREE.Vector3(createdUprightBox.position.x + uprightBoxHalfWidth, createdBox.position.y + 0.006, createdUprightBox.position.z - uprightBoxHalfDepth);
-
-                        // Define the front and right edges of the base box
-                        const frontEdge = new THREE.Vector3(frontRightCorner.x, createdBox.position.y + 0.006, createdBox.position.z - boxDepth / 2);
-                        const rightEdge = new THREE.Vector3(createdBox.position.x + boxWidth / 2, createdBox.position.y + 0.006, frontRightCorner.z);
-
-                        // Calculate distances in millimeters
-                        const distance1 = frontRightCorner.distanceTo(frontEdge) * 1000;
-                        const distance2 = frontRightCorner.distanceTo(rightEdge) * 1000;
-
-                        // Update distance lines
-                        distanceLine1.geometry.setFromPoints([frontRightCorner, frontEdge]);
-                        distanceLine2.geometry.setFromPoints([frontRightCorner, rightEdge]);
-
-                        // Update distance labels
-                        distanceValue1.textContent = `${distance1.toFixed(0)} mm`;
-                        distanceValue2.textContent = `${distance2.toFixed(0)} mm`;
-
-                        const distanceLabel1Position = toScreenPosition(frontRightCorner.clone().lerp(frontEdge, 0.5), camera);
-                        const distanceLabel2Position = toScreenPosition(frontRightCorner.clone().lerp(rightEdge, 0.5), camera);
-
-                        // Adjust positions to avoid overlap
-                        adjustLabelPositions(distanceLabel1, distanceLabel1Position, distanceLabel2, distanceLabel2Position);
-
-                        distanceLabel1.style.left = `${distanceLabel1Position.x}px`;
-                        distanceLabel1.style.top = `${distanceLabel1Position.y}px`;
-
-                        distanceLabel2.style.left = `${distanceLabel2Position.x}px`;
-                        distanceLabel2.style.top = `${distanceLabel2Position.y}px`;
-                    }
-                });
-            } else {
-                console.log('No base box found or upright box already exists. Please create a base box first and only one upright box is allowed.');
+                    });
+                } else {
+                    console.log('No upright box found. Please create an upright box first.');
+                }
             }
-        }
 
-        function createCleat() {
-            if (createdUprightBox && !createdCleat) {
-                const cleatGeometry = new THREE.BoxGeometry(0.012, 0.1, 0.1); // Adjusted to meters
-                const cleatMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-                const cleat = new THREE.Mesh(cleatGeometry, cleatMaterial);
+            function onDragStart(event) {
+                controls.enabled = false; // Disable orbit controls
 
-                // Position the cleat on the x-facing face of the upright box
-                cleat.position.set(createdUprightBox.position.x + 0.056, createdUprightBox.position.y + (createdUprightBox.scale.y * 1.35), createdUprightBox.position.z); // Center the cleat and adjust height
-                scene.add(cleat);
-                createdCleat = cleat; // Store the reference to the created cleat
+                // Create distance lines
+                if (!distanceLine1) {
+                    const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+                    const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+                    distanceLine1 = new THREE.Line(geometry, material);
+                    scene.add(distanceLine1);
+                }
 
-                // Enable dragging for the cleat
-                const dragItems = [cleat];
-                cleatDragControls = new DragControls(dragItems, camera, renderer.domElement);
-                cleatDragControls.addEventListener('dragstart', function (event) {
-                    controls.enabled = false; // Disable orbit controls
-                });
-                cleatDragControls.addEventListener('dragend', function (event) {
-                    controls.enabled = true; // Re-enable orbit controls
-                });
-                cleatDragControls.addEventListener('drag', (event) => {
-                    if (createdCleat && createdUprightBox) {
-                        // Constrain the cleat to move only within the x and z plane of the upright box
-                        const uprightBoxHalfWidth = 0.05;
-                        const uprightBoxHalfDepth = 0.05;
-                        const minY = createdUprightBox.position.y;
-                        const maxY = createdUprightBox.position.y + (createdUprightBox.scale.y * 2.7);
+                if (!distanceLine2) {
+                    const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+                    const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+                    distanceLine2 = new THREE.Line(geometry, material);
+                    scene.add(distanceLine2);
+                }
 
-                        event.object.position.y = THREE.MathUtils.clamp(event.object.position.y, minY, maxY);
-                        event.object.position.x = createdUprightBox.position.x + 0.056; // Lock movement to the x face of the upright box
-                        event.object.position.z = createdUprightBox.position.z; // Lock movement to the x face of the upright box
-                    }
-                });
-            } else {
-                console.log('No upright box found or cleat already exists. Please create an upright box first and only one cleat is allowed.');
+                // Show distance labels
+                distanceLabel1.style.display = 'block';
+                distanceLabel2.style.display = 'block';
             }
-        }
 
-        function createBoxTop() {
-    if (createdUprightBox) {
-        const boxGeometry = new THREE.BoxGeometry(0.6, 0.012, 0.6); // Adjusted to meters
-        const boxMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
-        const box = new THREE.Mesh(boxGeometry, boxMaterial);
+            function onDragEnd(event) {
+                controls.enabled = true; // Re-enable orbit controls
 
-        // Position the box top with the same coordinates as the upright box
-        const uprightBoxHeight = createdUprightBox.scale.y * 2.7;
-        box.position.set(createdUprightBox.position.x, createdUprightBox.position.y + (uprightBoxHeight / 2) + 0.006, createdUprightBox.position.z);
-        scene.add(box);
-        createdBoxTop = box; // Store the reference to the created box top
+                // Remove distance lines
+                if (distanceLine1) {
+                    scene.remove(distanceLine1);
+                    distanceLine1 = null;
+                }
+                if (distanceLine2) {
+                    scene.remove(distanceLine2);
+                    distanceLine2 = null;
+                }
 
-        // Calculate the top position of the box for the sliders
-        const boxTopYPosition = box.position.y + (0.012 / 2) + 0.1;
+                // Hide distance labels
+                distanceLabel1.style.display = 'none';
+                distanceLabel2.style.display = 'none';
+            }
 
-        // Create sliders for x and z dimensions
-        const xSlider = createSlider('X_SLIDER', new THREE.Vector3(box.position.x, boxTopYPosition, box.position.z - 0.8), null);
-        const zSlider = createSlider('Z_SLIDER', new THREE.Vector3(box.position.x + 0.8, boxTopYPosition, box.position.z), new THREE.Euler(0, Math.PI / 2, 0));
+            function adjustLabelPositions(label1, pos1, label2, pos2) {
+                const label1Rect = label1.getBoundingClientRect();
+                const label2Rect = label2.getBoundingClientRect();
 
-        // Add labels for sliders
-        const xLabel = create3DText('600 mm', 0.05, 0.01, new THREE.Vector3(box.position.x, boxTopYPosition + 0.05, box.position.z - 0.8));
-        const zLabel = create3DText('600 mm', 0.05, 0.01, new THREE.Vector3(box.position.x + 0.8, boxTopYPosition + 0.05, box.position.z));
+                if (
+                    pos1.x < pos2.x + label2Rect.width &&
+                    pos1.x + label1Rect.width > pos2.x &&
+                    pos1.y < pos2.y + label2Rect.height &&
+                    pos1.y + label1Rect.height > pos2.y
+                ) {
+                    pos1.x -= label1Rect.width / 2;
+                    pos1.y -= label1Rect.height / 2;
+                    pos2.x += label2Rect.width / 2;
+                    pos2.y += label2Rect.height / 2;
+                }
+            }
 
-        // Enable dragging for sliders
-        const sliders = [xSlider, zSlider];
-        dragControls = new DragControls(sliders, camera, renderer.domElement);
-        dragControls.addEventListener('dragstart', function (event) {
-            controls.enabled = false; // Disable orbit controls
+            // Convert 3D position to screen position
+            function toScreenPosition(position, camera) {
+                const vector = position.project(camera);
+                vector.x = (vector.x + 1) / 2 * window.innerWidth;
+                vector.y = -(vector.y - 1) / 2 * window.innerHeight;
+                return vector;
+            }
+
+            // Raycaster
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            let createdBox = null;
+            let createdUprightBox = null;
+            let createdCleat = null;
+            let createdBoxTop = null
+            let dragControls, cleatDragControls;
+            let distanceLine1, distanceLine2;
+            const distanceLabel1 = document.getElementById('distanceLabel1');
+            const distanceValue1 = document.getElementById('distanceValue1');
+            const distanceLabel2 = document.getElementById('distanceLabel2');
+            const distanceValue2 = document.getElementById('distanceValue2');
+
+            // Camera position
+            camera.position.z = 10;  // Ensure the camera can see the buttons
+
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+
+
+
+
+
+
+
+            // Create buttons
+            const buttonGeometry = new THREE.PlaneGeometry(2, 1);
+
+            const boxButtonMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+            const boxButton = new THREE.Mesh(buttonGeometry, boxButtonMaterial);
+            boxButton.position.set(-5, 0, -5);
+            boxButton.name = 'BOX_BUTTON';
+            scene.add(boxButton);
+            const buttonGeometry2 = new THREE.PlaneGeometry(2, 1);
+
+            const boxButtonMaterial2 = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+            const boxButton2 = new THREE.Mesh(buttonGeometry2, boxButtonMaterial2);
+            boxButton2.position.set(-2.5, 0, -5);
+            boxButton2.name = 'BOX_BUTTON_TOP';
+            scene.add(boxButton2);
+
+            const uprightBoxButtonMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+            const uprightBoxButton = new THREE.Mesh(buttonGeometry, uprightBoxButtonMaterial);
+            uprightBoxButton.position.set(2.5, 0, -5);
+            uprightBoxButton.name = 'UPRIGHT_BOX_BUTTON';
+            scene.add(uprightBoxButton);
+
+            const cleatButtonMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+            const cleatButton = new THREE.Mesh(buttonGeometry, cleatButtonMaterial);
+            cleatButton.position.set(0, 0, -5);
+            cleatButton.name = 'CLEAT_BUTTON';
+            scene.add(cleatButton);
+
+            // Create 3D text for buttons
+            create3DText('Baseplate', 0.3, 0.05, new THREE.Vector3(-6, 0.6, -5));
+            create3DText('Topplate', 0.3, 0.05, new THREE.Vector3(-3.5, 0.6, -5));
+            create3DText('Support', 0.3, 0.05, new THREE.Vector3(1.5, 0.6, -5));
+            create3DText('Cleat', 0.3, 0.05, new THREE.Vector3(-0.5, 0.6, -5));
+
+
+
+
+
+
+            // mock add
+
+
+            createBox()
+            createUprightBox()
+            createBoxTop()
+            createCleat()
         });
-
-        dragControls.addEventListener('dragend', function (event) {
-            controls.enabled = true; // Re-enable orbit controls
-            updateUprightBoxConstraints(); // Update constraints after changing the base box size
-        });
-
-        dragControls.addEventListener('drag', function (event) {
-            if (event.object.name === 'X_SLIDER') {
-                const newX = THREE.MathUtils.clamp(event.object.position.x, -0.3, 0.3);
-                event.object.position.x = newX;
-                event.object.position.y = boxTopYPosition; // Lock movement to the x plane
-                event.object.position.z = box.position.z - 0.8; // Lock movement to the x plane
-                createdBoxTop.scale.x = (newX + 0.3) / 0.6;
-                xLabel.geometry.dispose(); // Dispose old geometry
-                xLabel.geometry = new TextGeometry(`${(createdBoxTop.scale.x * 600).toFixed(0)} mm`, {
-                    font: font,
-                    size: 0.05,
-                    height: 0.01,
-                });
-            } else if (event.object.name === 'Z_SLIDER') {
-                const newZ = THREE.MathUtils.clamp(event.object.position.z, -0.3, 0.3);
-                event.object.position.z = newZ;
-                event.object.position.y = boxTopYPosition; // Lock movement to the z plane
-                event.object.position.x = box.position.x + 0.8; // Lock movement to the z plane
-                createdBoxTop.scale.z = (newZ + 0.3) / 0.6;
-                zLabel.geometry.dispose(); // Dispose old geometry
-                zLabel.geometry = new TextGeometry(`${(createdBoxTop.scale.z * 600).toFixed(0)} mm`, {
-                    font: font,
-                    size: 0.05,
-                    height: 0.01,
-                });
-            }
-        });
-    } else {
-        console.log('No upright box found. Please create an upright box first.');
-    }
-}
-
-        function onDragStart(event) {
-            controls.enabled = false; // Disable orbit controls
-
-            // Create distance lines
-            if (!distanceLine1) {
-                const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
-                const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
-                distanceLine1 = new THREE.Line(geometry, material);
-                scene.add(distanceLine1);
-            }
-
-            if (!distanceLine2) {
-                const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
-                const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
-                distanceLine2 = new THREE.Line(geometry, material);
-                scene.add(distanceLine2);
-            }
-
-            // Show distance labels
-            distanceLabel1.style.display = 'block';
-            distanceLabel2.style.display = 'block';
-        }
-
-        function onDragEnd(event) {
-            controls.enabled = true; // Re-enable orbit controls
-
-            // Remove distance lines
-            if (distanceLine1) {
-                scene.remove(distanceLine1);
-                distanceLine1 = null;
-            }
-            if (distanceLine2) {
-                scene.remove(distanceLine2);
-                distanceLine2 = null;
-            }
-
-            // Hide distance labels
-            distanceLabel1.style.display = 'none';
-            distanceLabel2.style.display = 'none';
-        }
-
-        function adjustLabelPositions(label1, pos1, label2, pos2) {
-            const label1Rect = label1.getBoundingClientRect();
-            const label2Rect = label2.getBoundingClientRect();
-
-            if (
-                pos1.x < pos2.x + label2Rect.width &&
-                pos1.x + label1Rect.width > pos2.x &&
-                pos1.y < pos2.y + label2Rect.height &&
-                pos1.y + label1Rect.height > pos2.y
-            ) {
-                pos1.x -= label1Rect.width / 2;
-                pos1.y -= label1Rect.height / 2;
-                pos2.x += label2Rect.width / 2;
-                pos2.y += label2Rect.height / 2;
-            }
-        }
-
-        // Convert 3D position to screen position
-        function toScreenPosition(position, camera) {
-            const vector = position.project(camera);
-            vector.x = (vector.x + 1) / 2 * window.innerWidth;
-            vector.y = -(vector.y - 1) / 2 * window.innerHeight;
-            return vector;
-        }
-
-        // Raycaster
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-
-        let createdBox = null;
-        let createdUprightBox = null;
-        let createdCleat = null;
-        let createdBoxTop=null
-        let dragControls, cleatDragControls;
-        let distanceLine1, distanceLine2;
-        const distanceLabel1 = document.getElementById('distanceLabel1');
-        const distanceValue1 = document.getElementById('distanceValue1');
-        const distanceLabel2 = document.getElementById('distanceLabel2');
-        const distanceValue2 = document.getElementById('distanceValue2');
-
-        // Camera position
-        camera.position.z = 10;  // Ensure the camera can see the buttons
-
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // Create buttons
-        const buttonGeometry = new THREE.PlaneGeometry(2, 1);
-        
-        const boxButtonMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-        const boxButton = new THREE.Mesh(buttonGeometry, boxButtonMaterial);
-        boxButton.position.set(-5, 0, -5);
-        boxButton.name = 'BOX_BUTTON';
-        scene.add(boxButton);
-        const buttonGeometry2 = new THREE.PlaneGeometry(2, 1);
-        
-        const boxButtonMaterial2 = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-        const boxButton2 = new THREE.Mesh(buttonGeometry2, boxButtonMaterial2);
-        boxButton2.position.set(-2.5, 0, -5);
-        boxButton2.name = 'BOX_BUTTON_TOP';
-        scene.add(boxButton2);
-        
-        const uprightBoxButtonMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff });
-        const uprightBoxButton = new THREE.Mesh(buttonGeometry, uprightBoxButtonMaterial);
-        uprightBoxButton.position.set(2.5, 0, -5);
-        uprightBoxButton.name = 'UPRIGHT_BOX_BUTTON';
-        scene.add(uprightBoxButton);
-
-        const cleatButtonMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-        const cleatButton = new THREE.Mesh(buttonGeometry, cleatButtonMaterial);
-        cleatButton.position.set(0, 0, -5);
-        cleatButton.name = 'CLEAT_BUTTON';
-        scene.add(cleatButton);
-
-        // Create 3D text for buttons
-        create3DText('Baseplate', 0.3, 0.05, new THREE.Vector3(-6, 0.6, -5));
-        create3DText('Topplate', 0.3, 0.05, new THREE.Vector3(-3.5, 0.6, -5));
-        create3DText('Support', 0.3, 0.05, new THREE.Vector3(1.5, 0.6, -5));
-        create3DText('Cleat', 0.3, 0.05, new THREE.Vector3(-0.5, 0.6, -5));
-    });
-</script>
+    </script>
 </body>
+
 </html>
