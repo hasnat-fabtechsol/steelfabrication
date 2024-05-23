@@ -106,24 +106,27 @@
                 return slider;
             }
 
-            function createBox() {
-                const boxGeometry = new THREE.BoxGeometry(0.6, 0.012, 0.6); // Adjusted to meters
+            function createBox(ff) {
+                const boxGeometry = new THREE.BoxGeometry(ff||0.6, 0.012, 0.6); // Adjusted to meters
                 const boxMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
                 const box = new THREE.Mesh(boxGeometry, boxMaterial);
                 box.position.set(0, 0.006, 0); // Center the box at the origin and adjust height
                 scene.add(box);
                 createdBox = box; // Store the reference to the created box
 
+                // inputButton()
                 // Create sliders for x and z dimensions
-                const xSlider = createSlider('X_SLIDER', new THREE.Vector3(0, 0.1, -0.8), null);
-                const zSlider = createSlider('Z_SLIDER', new THREE.Vector3(0.8, 0.1, 0), new THREE.Euler(0, Math.PI / 2, 0));
-
+                const xSlider = createSlider('SLIDER', new THREE.Vector3(0, 0.1, -0.8), null);
+                const zSlider = createSlider('SLIDER', new THREE.Vector3(0.8, 0.1, 0), new THREE.Euler(0, Math.PI / 2, 0));
+                xSlider.target=["createdBox","x"]
+                    zSlider.target=["createdBox","z"]
                 // Add labels for sliders
                 const xLabel = create3DText('600 mm', 0.05, 0.01, new THREE.Vector3(0, 0.15, -0.8));
                 const zLabel = create3DText('600 mm', 0.05, 0.01, new THREE.Vector3(0.8, 0.15, 0));
-
+                // createMovableTextInputField()
                 // Enable dragging for sliders
                 const sliders = [xSlider, zSlider];
+               
                 dragControls = new DragControls(sliders, camera, renderer.domElement);
                 dragControls.addEventListener('dragstart', function (event) {
                     controls.enabled = false; // Disable orbit controls
@@ -135,7 +138,8 @@
                 });
 
                 dragControls.addEventListener('drag', function (event) {
-                    if (event.object.name === 'X_SLIDER') {
+                    console.log(event,"sdasdasdas");
+                    if (event.object.name === 'SLIDER') {
                         const newX = THREE.MathUtils.clamp(event.object.position.x, -0.3, 0.3);
                         event.object.position.x = newX;
                         event.object.position.y = 0.1; // Lock movement to the x plane
@@ -147,7 +151,7 @@
                             size: 0.05,
                             height: 0.01,
                         });
-                    } else if (event.object.name === 'Z_SLIDER') {
+                    } else if (event.object.name === 'SLIDER') {
                         const newZ = THREE.MathUtils.clamp(event.object.position.z, -0.3, 0.3);
                         event.object.position.z = newZ;
                         event.object.position.y = 0.1; // Lock movement to the z plane
@@ -164,6 +168,7 @@
             }
 
             function updateUprightBoxConstraints() {
+                
                 if (createdUprightBox && createdBox) {
                     const boxWidth = createdBox.scale.x * 0.6;
                     const boxDepth = createdBox.scale.z * 0.6;
@@ -186,7 +191,8 @@
 
             // Add event listener for mouse clicks
             window.addEventListener('click', onMouseClick, false);
-
+           
+          
             function onMouseClick(event) {
                 // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
                 mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -196,13 +202,15 @@
                 raycaster.setFromCamera(mouse, camera);
 
                 // Calculate objects intersecting the picking ray
-                const intersects = raycaster.intersectObjects(scene.children);
-
+                var intersects = raycaster.intersectObjects(scene.children);
+               
+                console.log(intersects,"wewew");
                 for (let i = 0; i < intersects.length; i++) {
+
                     if (intersects[i].object.name === 'BOX_BUTTON') {
                         createBox();
                         break;  // Exit the loop after finding the button
-                    }
+                    }else
                     if (intersects[i].object.name === 'BOX_BUTTON_TOP') {
                         createBoxTop();
                         break;  // Exit the loop after finding the button
@@ -213,7 +221,60 @@
                     } else if (intersects[i].object.name === 'CLEAT_BUTTON') {
                         createCleat();
                         break;  // Exit the loop after finding the button
+                    }else if (intersects[i].object.name === 'BUTTON_SEGMENT_1') {
+                       
+                        let [valueToChange,axis]=buttonsSegments[0].target
+console.log(buttonsSegments[0].target);
+                       if(valueToChange==="createdUprightBox"){
+
+                           createdUprightBox.scale[axis]+=0.1
+
+                       }
+                    else if(valueToChange==="createdBox")
+                       createdBox.scale[axis]+=0.1
+                      else if(valueToChange==="createdBoxTop")
+                       createdBoxTop.scale[axis]+=0.1
+                    //    if(valueToChange==="createUprightBox")
+                    //    cleat.scale[axis]-=0.1
+
+                        // createBox(counter)
+                        break;  // Exit the loop after finding the button
+                        break;  // Exit the loop after finding the button
+                    
+                    }else if (intersects[i].object.name === 'BUTTON_SEGMENT_0') {
+let [valueToChange,axis]=buttonsSegments[0].target
+console.log(buttonsSegments[0].target);
+                       if(valueToChange==="createdUprightBox"){
+
+                           createdUprightBox.scale[axis]-=0.1
+
+                       }
+                    else if(valueToChange==="createdBox")
+                       createdBox.scale[axis]-=0.1
+                      else if(valueToChange==="createdBoxTop")
+                       createdBoxTop.scale[axis]-=0.1
+                    //    if(valueToChange==="createUprightBox")
+                    //    cleat.scale[axis]-=0.1
+
+                        // createBox(counter)
+                        break;  // Exit the loop after finding the button
+                    } else if (intersects[i].object.name === 'SLIDER') {
+// createUprightBox
+let [valueToChange,axis]=intersects[i].object.target
+console.log(intersects[i].object.target);
+                        buttonsSegments[0].target=[valueToChange,axis]
+                            
+                        // []"createUprightBox","y"]
+                        console.log(scene);
+
+                        console.log(intersects);
+                       alert("slider clicked")
+                    //    createdBox.scale.x-=0.1
+                        // createBox(counter)
+                        break;  // Exit the loop after finding the button
                     }
+
+             
                 }
             }
 
@@ -229,11 +290,11 @@
                     createdUprightBox = uprightBox; // Store the reference to the created upright box
 
                     // Create vertical slider for height adjustment
-                    const ySlider = createVerticalSlider('Y_SLIDER', new THREE.Vector3(1.5, 1.35, 0));
+                    const ySlider = createVerticalSlider('SLIDER', new THREE.Vector3(1.5, 1.35, 0));
                     const minLabel = create3DText('300 mm', 0.05, 0.01, new THREE.Vector3(1.55, 0.3, 0));
                     const maxLabel = create3DText('2700 mm', 0.05, 0.01, new THREE.Vector3(1.55, 2.7, 0));
                     const yLabel = create3DText('2700 mm', 0.05, 0.01, new THREE.Vector3(1.55, 1.35, 0));
-
+ySlider.target=["createdUprightBox","y"]
                     // Enable dragging for upright box and vertical slider
                     const dragItems = [uprightBox, ySlider];
                     dragControls = new DragControls(dragItems, camera, renderer.domElement);
@@ -253,7 +314,7 @@
                             const minZ = createdBox.position.z - (boxDepth / 2) + uprightBoxHalfDepth;
                             const maxZ = createdBox.position.z + (boxDepth / 2) - uprightBoxHalfDepth;
 
-                            if (event.object.name === 'Y_SLIDER') {
+                            if (event.object.name === 'SLIDER') {
                                 const newY = THREE.MathUtils.clamp(event.object.position.y, 0.3, 2.7);
                                 event.object.position.y = newY;
                                 event.object.position.x = 1.5; // Lock movement to the y plane
@@ -384,9 +445,10 @@ function createBoxTop() {
                     const boxTopYPosition = box.position.y + (0.012 / 2) + 0.1;
 
                     // Create sliders for x and z dimensions
-                    const xSlider = createSlider('X_SLIDER', new THREE.Vector3(box.position.x, boxTopYPosition, box.position.z - 0.8), null);
-                    const zSlider = createSlider('Z_SLIDER', new THREE.Vector3(box.position.x + 0.8, boxTopYPosition, box.position.z), new THREE.Euler(0, Math.PI / 2, 0));
-
+                    const xSlider = createSlider('SLIDER', new THREE.Vector3(box.position.x, boxTopYPosition, box.position.z - 0.8), null);
+                    const zSlider = createSlider('SLIDER', new THREE.Vector3(box.position.x + 0.8, boxTopYPosition, box.position.z), new THREE.Euler(0, Math.PI / 2, 0));
+                    xSlider.target=["createdBoxTop","x"]
+                    zSlider.target=["createdBoxTop","z"]
                     // Add labels for sliders
                     const xLabel = create3DText('600 mm', 0.05, 0.01, new THREE.Vector3(box.position.x, boxTopYPosition + 0.05, box.position.z - 0.8));
                     const zLabel = create3DText('600 mm', 0.05, 0.01, new THREE.Vector3(box.position.x + 0.8, boxTopYPosition + 0.05, box.position.z));
@@ -404,7 +466,7 @@ function createBoxTop() {
                     });
 
                     dragControls.addEventListener('drag', function (event) {
-                        if (event.object.name === 'X_SLIDER') {
+                        if (event.object.name === 'SLIDER') {
                             const newX = THREE.MathUtils.clamp(event.object.position.x, -0.3, 0.3);
                             event.object.position.x = newX;
                             event.object.position.y = boxTopYPosition; // Lock movement to the x plane
@@ -416,7 +478,7 @@ function createBoxTop() {
                                 size: 0.05,
                                 height: 0.01,
                             });
-                        } else if (event.object.name === 'Z_SLIDER') {
+                        } else if (event.object.name === 'SLIDER') {
                             const newZ = THREE.MathUtils.clamp(event.object.position.z, -0.3, 0.3);
                             event.object.position.z = newZ;
                             event.object.position.y = boxTopYPosition; // Lock movement to the z plane
@@ -639,7 +701,7 @@ function checkOverlap(circle) {
 
 
 
-
+          
 
 
             // Create buttons
@@ -678,17 +740,181 @@ function checkOverlap(circle) {
 
 
 
+let buttonsSegments=[]
+
+            const buttonWidth = 0.5;
+const buttonHeight = 0.25;
+
+// Define colors for each segment
+const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
+
+// Loop to create four segments
+for (let i = 0; i < 2; i++) {
+    // Create geometry for each segment
+    const segmentGeometry = new THREE.PlaneGeometry(buttonWidth, buttonHeight);
+
+    // Create material for each segment with different color
+    const segmentMaterial = new THREE.MeshStandardMaterial({ color: colors[i] });
+
+    // Create mesh for each segment
+    const segmentMesh = new THREE.Mesh(segmentGeometry, segmentMaterial);
+
+    // Position each segment accordingly
+    segmentMesh.position.set(-5  ,i, -2);
+
+    // Optionally, you can name each segment
+    segmentMesh.name = 'BUTTON_SEGMENT_' + i;
+    buttonsSegments.push(segmentMesh)
+
+    // Add each segment to the scene
+    scene.add(segmentMesh);
+}
+
+
+
+
+
+
+            function inputButton() {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 256;
+    canvas.height = 128;
+
+    // Draw text on the canvas
+    context.fillStyle = 'blue';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = 'white';
+    context.font = '48px Arial';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText('Input', canvas.width / 2, canvas.height / 2);
+
+    // Create a texture from the canvas
+    const texture = new THREE.CanvasTexture(canvas);
+
+    // Create a box geometry and material
+    const boxGeometry = new THREE.BoxGeometry(1, 0.5, 0.1);
+    const boxMaterial = new THREE.MeshBasicMaterial({ map: texture });
+    const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+
+    // Position the box in the scene
+    boxMesh.position.set(5, 0.6, -5);
+    boxMesh.name = '2';
+    // Add the box to the scene
+    scene.add(boxMesh);
+
+    // Add event listener to the button
+    boxMesh.addEventListener('click', function() {
+        // Increase the size of the box
+        console.log("dwd");
+        boxMesh.scale.multiplyScalar(1.1); // You can adjust the scale factor as needed
+    });
+}
+
+
+
+
 
 
 
             // mock add
 
 
-            createBox()
-            createUprightBox()
-            createBoxTop()
-            createCleat()
-            createHoles()
+            // createBox()
+            // createUprightBox()
+            // createBoxTop()
+            // createCleat()
+            // createHoles()
+
+
+
+
+
+
+
+
+            function createMovableTextInputField() {
+    // Create a Three.js text geometry
+    const textGeometry = new TextGeometry('', {
+        font: font,
+        size: 0.3, // Adjust size as needed
+        height: 0.05, // Adjust height as needed
+    });
+
+    // Create a material for the text
+    const textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+
+    // Create a mesh for the text
+    const textField = new THREE.Mesh(textGeometry, textMaterial);
+    textField.position.set(0, 0, -5); // Adjust position as needed
+
+    // Add the text field mesh to the scene
+    scene.add(textField);
+
+    // Function to update the text geometry based on the input value
+    function updateTextGeometry(inputValue) {
+        textGeometry.dispose(); // Dispose old geometry
+        const newTextGeometry = new TextGeometry(inputValue, {
+            font: font,
+            size: 0.3,
+            height: 0.05,
+        });
+        textField.geometry = newTextGeometry;
+    }
+
+    // Create an HTML input element for text input
+    const inputElement = document.createElement('input');
+    inputElement.type = 'text';
+    inputElement.style.position = 'absolute';
+    inputElement.style.top = '50%';
+    inputElement.style.left = '50%';
+    inputElement.style.transform = 'translate(-50%, -50%)';
+    inputElement.style.width = '200px';
+    inputElement.style.height = '40px';
+    inputElement.style.fontSize = '16px';
+    inputElement.style.padding = '8px';
+    inputElement.style.boxSizing = 'border-box';
+
+    // Function to handle text input
+    function handleTextInput(event) {
+        const inputValue = event.target.value;
+        updateTextGeometry(inputValue);
+    }
+
+    // Function to handle input field movement
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    function handleDragStart(event) {
+        isDragging = true;
+        const rect = inputElement.getBoundingClientRect();
+        offsetX = event.clientX - rect.left;
+        offsetY = event.clientY - rect.top;
+    }
+
+    function handleDragEnd() {
+        isDragging = false;
+    }
+
+    function handleDrag(event) {
+        if (isDragging) {
+            inputElement.style.left = event.clientX - offsetX + 'px';
+            inputElement.style.top = event.clientY - offsetY + 'px';
+        }
+    }
+
+    // Add event listeners for input events and dragging
+    inputElement.addEventListener('input', handleTextInput);
+    inputElement.addEventListener('mousedown', handleDragStart);
+    document.addEventListener('mouseup', handleDragEnd);
+    document.addEventListener('mousemove', handleDrag);
+
+    // Add the input element to the HTML body
+    document.body.appendChild(inputElement);
+}
+
+
 
         });
     </script>
