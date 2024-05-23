@@ -403,62 +403,49 @@ ySlider.target=["createdUprightBox","y"]
             }
 
             function createCleat(direction = "left") {
-                if (createdUprightBox ) {
+    if (createdUprightBox) {
+        const cleatGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.01); // Adjusted to meters
+        const cleatMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+        const cleat = new THREE.Mesh(cleatGeometry, cleatMaterial);
 
-                    let x = createdUprightBox.position.x + 0.1,
-                        y = (createdUprightBox.position.y + (createdUprightBox.scale.y)),
-                        z = createdUprightBox.position.z
+        // Position the cleat relative to the upright box
+        let x = 0.1;
+        let y = createdUprightBox.scale.y * 1.35; // Midway up the upright box
+        let z = 0;
 
+        cleat.position.set(x, y, -0.05); // Center the cleat and adjust height
+        createdUprightBox.add(cleat); // Add the cleat as a child of the upright box
+        createdCleat = cleat; // Store the reference to the created cleat
 
-                    // const boxGeometry = new THREE.BoxGeometry(0.012, 0.1, 0.1); // Adjusted to meters
-                    // const cleatGeometry = new THREE.BoxGeometry(0.6, 0.012, 0.6); // Adjusted to meters
-                    // 0.1, 2.7, 0.1
-                    const cleatGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.01); // Adjusted to meters
-                    const cleatMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-                    const cleat = new THREE.Mesh(cleatGeometry, cleatMaterial);
+        // Enable dragging for the cleat
+        const dragItems = [cleat];
+        cleatDragControls = new DragControls(dragItems, camera, renderer.domElement);
+        cleatDragControls.addEventListener('dragstart', function (event) {
+            controls.enabled = false; // Disable orbit controls
+        });
+        cleatDragControls.addEventListener('dragend', function (event) {
+            controls.enabled = true; // Re-enable orbit controls
+        });
+        cleatDragControls.addEventListener('drag', (event) => {
+            if (createdCleat && createdUprightBox) {
+                // Constrain the cleat to move only within the y plane of the upright box
+                const minY = 0;
+                const maxY = createdUprightBox.scale.y * 2.7;
 
-                    // Position the cleat on the x-facing face of the upright box
-                    // cleat.position.set(0, 0.006, 0); // Center the box at the origin and adjust height
+                // Compute new position relative to the upright box
+                const newPositionY = THREE.MathUtils.clamp(event.object.position.y, minY, maxY);
+                event.object.position.y = newPositionY;
+                event.object.position.x = x; // Lock movement to the x face of the upright box
 
-                    cleat.position.set(x,
-                        y,
-                        -0.05); // Center the cleat and adjust height
-                    scene.add(cleat);
-                    createdCleat = cleat; // Store the reference to the created cleat
-
-                    // Enable dragging for the cleat
-                    const dragItems = [cleat];
-                    cleatDragControls = new DragControls(dragItems, camera, renderer.domElement);
-                    cleatDragControls.addEventListener('dragstart', function (event) {
-                        controls.enabled = false; // Disable orbit controls
-                    });
-                    cleatDragControls.addEventListener('dragend', function (event) {
-                        controls.enabled = true; // Re-enable orbit controls
-                    });
-                    cleatDragControls.addEventListener('drag', (event) => {
-                        if (createdCleat && createdUprightBox) {
-                            // Constrain the cleat to move only within the x and z plane of the upright box
-                            const uprightBoxHalfWidth = 0.05;
-                            const uprightBoxHalfDepth = 0.05;
-                            const minY = createdUprightBox.position.y;
-                            const maxY = createdUprightBox.position.y + (createdUprightBox.scale.y * 2.7);
-
-                            event.object.position.y = THREE.MathUtils.clamp(event.object.position.y, minY, maxY);
-                            event.object.position.x = x; // Lock movement to the x face of the upright box
-
-                            const zPositions = [-0.05, 0, 0.05];
-        event.object.position.z = zPositions.reduce((prev, curr) => 
-            (Math.abs(curr - event.object.position.z) < Math.abs(prev - event.object.position.z) ? curr : prev));
-
-                            // event.object.position.z = THREE.MathUtils.clamp(event.object.position.z, -0.05, 0.05); // Lock movement to the x face of the upright box
-                            // event.object.position.z = z; // Lock movement to the x face of the upright box
-                        }
-                    });
-                } else {
-                    console.log('No upright box found or cleat already exists. Please create an upright box first and only one cleat is allowed.');
-                }
+                const zPositions = [-0.05, 0, 0.05];
+                event.object.position.z = zPositions.reduce((prev, curr) =>
+                    (Math.abs(curr - event.object.position.z) < Math.abs(prev - event.object.position.z) ? curr : prev));
             }
-
+        });
+    } else {
+        console.log('No upright box found or cleat already exists. Please create an upright box first and only one cleat is allowed.');
+    }
+}
 
 function createBoxTop() {
                 if (createdUprightBox) {
