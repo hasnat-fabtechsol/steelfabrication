@@ -69,7 +69,14 @@
         const loader = new FontLoader();
         loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (loadedFont) {
             font = loadedFont;
-
+            let createdBox = null;
+            let createdUprightBox = null;
+            let createdCleat = null;
+            let createdBoxTop = null
+            let createdHoles = []
+            let dragControls, cleatDragControls;
+            let distanceLine1, distanceLine2;
+            let  selectedAxisText
             // Load font and create 3D text
             function create3DText(text, size, height, position) {
                 const textGeometry = new TextGeometry(text, {
@@ -83,7 +90,17 @@
                 scene.add(mesh);
                 return mesh;
             }
-
+            function update3DText(mesh, newText, size, height) {
+                const position = new THREE.Vector3(0, 0, 0);
+    const newGeometry = new TextGeometry(newText, {
+        font: font,
+        size: size,
+        height: height,
+    });
+    mesh.geometry.dispose(); // Dispose of old geometry
+    mesh.geometry = newGeometry;
+    return mesh
+}
             // Create sliders for x and z dimensions
             function createSlider(name, position, rotation) {
                 const sliderGeometry = new THREE.BoxGeometry(0.6, 0.01, 0.02);
@@ -118,6 +135,8 @@
                 // Create sliders for x and z dimensions
                 const xSlider = createSlider('SLIDER', new THREE.Vector3(0, 0.1, -0.8), null);
                 const zSlider = createSlider('SLIDER', new THREE.Vector3(0.8, 0.1, 0), new THREE.Euler(0, Math.PI / 2, 0));
+                xSlider.u_name="X_SLIDER"
+                zSlider.u_name="Z_SLIDER"
                 xSlider.target=["createdBox","x"]
                     zSlider.target=["createdBox","z"]
                 // Add labels for sliders
@@ -138,8 +157,8 @@
                 });
 
                 dragControls.addEventListener('drag', function (event) {
-                    console.log(event,"sdasdasdas");
-                    if (event.object.name === 'SLIDER') {
+                    
+                    if (event.object.u_name === 'X_SLIDER') {
                         const newX = THREE.MathUtils.clamp(event.object.position.x, -0.3, 0.3);
                         event.object.position.x = newX;
                         event.object.position.y = 0.1; // Lock movement to the x plane
@@ -151,7 +170,7 @@
                             size: 0.05,
                             height: 0.01,
                         });
-                    } else if (event.object.name === 'SLIDER') {
+                    } else if (event.object.u_name === 'Z_SLIDER') {
                         const newZ = THREE.MathUtils.clamp(event.object.position.z, -0.3, 0.3);
                         event.object.position.z = newZ;
                         event.object.position.y = 0.1; // Lock movement to the z plane
@@ -188,12 +207,14 @@
                     }
                 }
             }
-
+            
+            var slapValue
             // Add event listener for mouse clicks
             window.addEventListener('click', onMouseClick, false);
            
           
             function onMouseClick(event) {
+                console.log(selectedAxisText)
                 // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
                 mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
                 mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -226,14 +247,24 @@
                         let [valueToChange,axis]=buttonsSegments[0].target
 console.log(buttonsSegments[0].target);
                        if(valueToChange==="createdUprightBox"){
-
                            createdUprightBox.scale[axis]+=0.1
+                           console.log(selectedAxisText)
+                           slapValue=createdUprightBox.scale[axis]
+                           console.log(createdUprightBox.scale[axis]*600,"dssddfds");
 
                        }
                     else if(valueToChange==="createdBox")
-                       createdBox.scale[axis]+=0.1
+                     {  createdBox.scale[axis]+=0.1
+                       slapValue= createdBox.scale[axis]
+                    //    update3DText(textMesh, 'New Text!', 1, 0.1);
+                       selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(1)} mm`, 0.09, 0.01)
+                        console.log(createdBox.scale[axis]*600,"dssddfds");
+                    }
                       else if(valueToChange==="createdBoxTop")
-                       createdBoxTop.scale[axis]+=0.1
+                      { createdBoxTop.scale[axis]+=0.1
+                        slapValue=createdBoxTop.scale[axis]
+                        console.log(createdBoxTop.scale[axis]*600,"dssddfds");
+                    }
                     //    if(valueToChange==="createUprightBox")
                     //    cleat.scale[axis]-=0.1
 
@@ -264,11 +295,11 @@ let [valueToChange,axis]=intersects[i].object.target
 console.log(intersects[i].object.target);
                         buttonsSegments[0].target=[valueToChange,axis]
                             
-                        // []"createUprightBox","y"]
+                       
                         console.log(scene);
 
                         console.log(intersects);
-                       alert("slider clicked")
+                       alert(axis)
                     //    createdBox.scale.x-=0.1
                         // createBox(counter)
                         break;  // Exit the loop after finding the button
@@ -664,13 +695,7 @@ function checkOverlap(circle) {
             const raycaster = new THREE.Raycaster();
             const mouse = new THREE.Vector2();
 
-            let createdBox = null;
-            let createdUprightBox = null;
-            let createdCleat = null;
-            let createdBoxTop = null
-            let createdHoles = []
-            let dragControls, cleatDragControls;
-            let distanceLine1, distanceLine2;
+         
             const distanceLabel1 = document.getElementById('distanceLabel1');
             const distanceValue1 = document.getElementById('distanceValue1');
             const distanceLabel2 = document.getElementById('distanceLabel2');
@@ -678,7 +703,7 @@ function checkOverlap(circle) {
 
             // Camera position
             // camera.position.z = 12;  // Ensure the camera can see the buttons
-            camera.position.z = 1;  // Ensure the camera can see the buttons
+            camera.position.z = 5;  // Ensure the camera can see the buttons
             camera.position.y = 1;  // Ensure the camera can see the buttons
             // camera.position.x = 5;  // Ensure the camera can see the buttons
 
@@ -741,34 +766,69 @@ function checkOverlap(circle) {
 
 
 let buttonsSegments=[]
-
+console.log(createdBox,"ssss4");
             const buttonWidth = 0.5;
 const buttonHeight = 0.25;
 
 // Define colors for each segment
-const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
+const colors = [0xff0000, 0x00ff00, ];
+const colorsTexture = ["#ff0000", "#00ff00",];
 
+// create3DText('34', 0.3, 0.05, new THREE.Vector3(-10, 1.5, -5));
 // Loop to create four segments
 for (let i = 0; i < 2; i++) {
     // Create geometry for each segment
-    const segmentGeometry = new THREE.PlaneGeometry(buttonWidth, buttonHeight);
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 256;
+    canvas.height = 128;
 
-    // Create material for each segment with different color
-    const segmentMaterial = new THREE.MeshStandardMaterial({ color: colors[i] });
+    // Draw text on the canvas
+    context.fillStyle = colorsTexture[i];
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = 'white';
+    context.font = '48px Arial';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(i==0?"-":"+", canvas.width / 2, canvas.height / 2);
 
-    // Create mesh for each segment
-    const segmentMesh = new THREE.Mesh(segmentGeometry, segmentMaterial);
+    // Create a texture from the canvas
+    const texture = new THREE.CanvasTexture(canvas);
+
+    const segmentGeometry = new THREE.BoxGeometry(1, 0.5, 0);
+
+    // Create materials
+    const textMaterial = new THREE.MeshBasicMaterial({ map: texture, });
+    const colorMaterial = new THREE.MeshStandardMaterial({ color: colors[i] });
+
+    // Create array of materials for each face
+    const materials = [
+        colorMaterial, // Right side
+        colorMaterial, // Left side
+        colorMaterial, // Top side
+        colorMaterial, // Bottom side
+        textMaterial,  // Front side with text
+        colorMaterial  // Back side
+    ];
+
+    // Create mesh with geometry and materials
+    const segmentMesh = new THREE.Mesh(segmentGeometry, materials);
 
     // Position each segment accordingly
-    segmentMesh.position.set(-5  ,i, -2);
+    segmentMesh.position.set(-5, i * 0.6, -2);
 
     // Optionally, you can name each segment
     segmentMesh.name = 'BUTTON_SEGMENT_' + i;
-    buttonsSegments.push(segmentMesh)
+    buttonsSegments.push(segmentMesh);
 
     // Add each segment to the scene
     scene.add(segmentMesh);
 }
+
+
+ selectedAxisText=create3DText('34 m',0.09, 0.01, new THREE.Vector3(-5, 0.94, -2));
+
+
 
 
 
