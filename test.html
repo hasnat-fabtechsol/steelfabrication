@@ -256,7 +256,6 @@ console.log(buttonsSegments[0].target);
                            console.log(selectedAxisText)
                            slapValue=createdUprightBox.scale[axis]
                            console.log(createdUprightBox.scale[axis]*600,"dssddfds");
-
                        }
                     else if(valueToChange==="createdBox")
                      {  createdBox.scale[axis]+=0.1
@@ -451,24 +450,35 @@ ySlider.target=["createdUprightBox","y"]
         console.log('No upright box found or cleat already exists. Please create an upright box first and only one cleat is allowed.');
     }
 }
-function createHole(position,cleat) {
-    console.log(cleat,"lldld");
-        // Create a hole at the clicked position
-        // For simplicity, we'll create a circular hole
-        // const holeRadius = 0.1;
-        // const holeSegments = 2;
-        const holeGeometry =  new THREE.BoxGeometry(0.05, 0.05, 0.02); 
-        const holeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0ff0, });
-       
-        const hole = new THREE.Mesh(holeGeometry);
 
-        // Position the hole mesh at the intersection point
-        hole.position.copy(position);
-        hole.rotation.x = - Math.PI / 2; // Align with the plane
-        scene.add(hole);
-        // cleat.add(hole);
-    }
 
+
+
+
+
+
+
+function createHole(position, cleat) {
+    // Create a hole mesh
+    console.log(position,"flflfofk");
+    const holeGeometry = new THREE.BoxGeometry(0.05, 0.05, 0.02);
+    const holeMaterial = new THREE.MeshStandardMaterial({ color: 0xff000 });
+    const hole = new THREE.Mesh(holeGeometry, holeMaterial);
+ 
+    const localPosition = cleat.worldToLocal(position.clone());
+
+// Set the hole's local position
+hole.position.copy(localPosition);
+
+console.log(hole.position, "Hole local position before adding to cleat");
+
+// Add the hole as a child of the cleat
+cleat.add(hole);
+
+console.log(hole.position, "Hole local position after adding to cleat");
+console.log(cleat.position, "Cleat position after adding hole");
+
+}
 
 
 
