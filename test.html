@@ -224,7 +224,12 @@
 
                 // Calculate objects intersecting the picking ray
                 var intersects = raycaster.intersectObjects(scene.children);
-               
+                if (intersects.length > 0) {
+            const intersect = intersects[0];
+           if(intersect.object.name=="cleat_name")
+            {console.log(intersect,"wewew1");
+            createHole(intersect.point,intersect.object);}
+        }
                 console.log(intersects,"wewew");
                 for (let i = 0; i < intersects.length; i++) {
 
@@ -412,7 +417,7 @@ ySlider.target=["createdUprightBox","y"]
         let x = 0.1;
         let y = createdUprightBox.scale.y * 1.35; // Midway up the upright box
         let z = 0;
-
+        cleat.name="cleat_name"
         cleat.position.set(x, y, -0.05); // Center the cleat and adjust height
         createdUprightBox.add(cleat); // Add the cleat as a child of the upright box
         createdCleat = cleat; // Store the reference to the created cleat
@@ -446,6 +451,27 @@ ySlider.target=["createdUprightBox","y"]
         console.log('No upright box found or cleat already exists. Please create an upright box first and only one cleat is allowed.');
     }
 }
+function createHole(position,cleat) {
+    console.log(cleat,"lldld");
+        // Create a hole at the clicked position
+        // For simplicity, we'll create a circular hole
+        // const holeRadius = 0.1;
+        // const holeSegments = 2;
+        const holeGeometry =  new THREE.BoxGeometry(0.05, 0.05, 0.02); 
+        const holeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0ff0, });
+       
+        const hole = new THREE.Mesh(holeGeometry);
+
+        // Position the hole mesh at the intersection point
+        hole.position.copy(position);
+        hole.rotation.x = - Math.PI / 2; // Align with the plane
+        scene.add(hole);
+        // cleat.add(hole);
+    }
+
+
+
+
 
 function createBoxTop() {
                 if (createdUprightBox) {
