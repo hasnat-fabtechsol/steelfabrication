@@ -132,7 +132,7 @@
                 box.position.set(0, 0.006, 0); // Center the box at the origin and adjust height
                 scene.add(box);
                 createdBox = box; // Store the reference to the created box
-
+                createHoles();
                 // inputButton()
                 // Create sliders for x and z dimensions
                 const xSlider = createSlider('SLIDER', new THREE.Vector3(0, 0.1, -0.8), null);
@@ -734,7 +734,7 @@ function checkOverlap(circle) {
             }
 
             function onDragEnd(event) {
-                createHoles();
+               
                 controls.enabled = true; // Re-enable orbit controls
 
                 // Remove distance lines
