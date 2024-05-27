@@ -734,7 +734,7 @@ function checkOverlap(circle) {
             }
 
             function onDragEnd(event) {
-               
+                createHoles();
                 controls.enabled = true; // Re-enable orbit controls
 
                 // Remove distance lines
