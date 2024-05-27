@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Three.js Steel Industry Configuration</title>
     <style>
+        
         body {
             margin: 0;
         }
@@ -74,6 +75,7 @@
             let createdCleat = null;
             let createdBoxTop = null
             let createdHoles = []
+            let activeSlider = null;
             let dragControls, cleatDragControls;
             let distanceLine1, distanceLine2;
             let  selectedAxisText
@@ -228,6 +230,7 @@
             const intersect = intersects[0];
            if(intersect.object.name=="cleat_name")
             {console.log(intersect,"wewew1");
+            showInputField(intersect.object);
             createHole(intersect.point,intersect.object);}
         }
                 console.log(intersects,"wewew");
@@ -255,6 +258,7 @@ console.log(buttonsSegments[0].target);
                            createdUprightBox.scale[axis]+=0.1
                            console.log(selectedAxisText)
                            slapValue=createdUprightBox.scale[axis]
+                           selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(1)} mm`, 0.09, 0.01)
                            console.log(createdUprightBox.scale[axis]*600,"dssddfds");
                        }
                     else if(valueToChange==="createdBox")
@@ -267,6 +271,7 @@ console.log(buttonsSegments[0].target);
                       else if(valueToChange==="createdBoxTop")
                       { createdBoxTop.scale[axis]+=0.1
                         slapValue=createdBoxTop.scale[axis]
+                        selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(1)} mm`, 0.09, 0.01)
                         console.log(createdBoxTop.scale[axis]*600,"dssddfds");
                     }
                     //    if(valueToChange==="createUprightBox")
@@ -280,14 +285,31 @@ console.log(buttonsSegments[0].target);
 let [valueToChange,axis]=buttonsSegments[0].target
 console.log(buttonsSegments[0].target);
                        if(valueToChange==="createdUprightBox"){
-
+if(createdUprightBox.scale[axis]<0.2){
+    return console.log("no");
+}
                            createdUprightBox.scale[axis]-=0.1
-
+                           slapValue=createdUprightBox.scale[axis]
+                           selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(1)} mm`, 0.09, 0.01)
                        }
                     else if(valueToChange==="createdBox")
-                       createdBox.scale[axis]-=0.1
+                    
+                       {
+                        if(createdBox.scale[axis]<0.2){
+    return console.log("no");
+}
+                        createdBox.scale[axis]-=0.1
+                        slapValue=createdBox.scale[axis]
+                        selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(1)} mm`, 0.09, 0.01)}
+                        
                       else if(valueToChange==="createdBoxTop")
-                       createdBoxTop.scale[axis]-=0.1
+                      {
+                        if(createdBoxTop.scale[axis]<0.2){
+    return console.log("no");
+}
+                        createdBoxTop.scale[axis]-=0.1
+                        slapValue=createdBoxTop.scale[axis]
+                        selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(1)} mm`, 0.09, 0.01)}
                     //    if(valueToChange==="createUprightBox")
                     //    cleat.scale[axis]-=0.1
 
@@ -301,6 +323,15 @@ console.log(intersects[i].object.target);
                             
                        
                         console.log(scene);
+                        if (activeSlider) {
+        resetSlider(activeSlider);
+    }
+
+    // Highlight the new active slider
+    highlightSlider(intersects[i].object);
+
+    // Update the active slider
+    activeSlider = intersects[i].object;
 
                         console.log(intersects);
                        alert(axis)
@@ -312,7 +343,21 @@ console.log(intersects[i].object.target);
              
                 }
             }
+            function highlightSlider(slider) {
+    // Store the original material to revert back if needed
+    if (!slider.userData.originalMaterial) {
+        slider.userData.originalMaterial = slider.material.clone();
+    }
 
+    // Change the material to highlight the slider
+    slider.material.color.set(0x808080); // Set the color to red, for example
+}
+
+function resetSlider(slider) {
+    if (slider.userData.originalMaterial) {
+        slider.material = slider.userData.originalMaterial;
+    }
+}
             function createUprightBox() {
                 if (createdBox && !createdUprightBox) {
                     const uprightBoxGeometry = new THREE.BoxGeometry(0.1, 2.7, 0.1); // Adjusted to meters
@@ -416,6 +461,7 @@ ySlider.target=["createdUprightBox","y"]
         let x = 0.1;
         let y = createdUprightBox.scale.y * 1.35; // Midway up the upright box
         let z = 0;
+
         cleat.name="cleat_name"
         cleat.position.set(x, y, -0.05); // Center the cleat and adjust height
         createdUprightBox.add(cleat); // Add the cleat as a child of the upright box
@@ -454,7 +500,24 @@ ySlider.target=["createdUprightBox","y"]
 
 
 
-
+function showInputField(object) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.style.position = 'absolute';
+    input.style.left = `${event.clientX}px`;
+    input.style.top = `${event.clientY}px`;
+    input.onblur = () => {
+        document.body.removeChild(input);
+    };
+    input.onkeydown = (event) => {
+        if (event.key === 'Enter') {
+            object.material.color.set(input.value);
+            document.body.removeChild(input);
+        }
+    };
+    document.body.appendChild(input);
+    input.focus();
+}
 
 
 
@@ -849,7 +912,7 @@ for (let i = 0; i < 2; i++) {
 }
 
 
- selectedAxisText=create3DText('34 m',0.09, 0.01, new THREE.Vector3(-5, 0.94, -2));
+ selectedAxisText=create3DText('3.4 mm',0.09, 0.01, new THREE.Vector3(-5, 0.94, -2));
 
 
 
