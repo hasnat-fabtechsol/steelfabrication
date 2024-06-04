@@ -132,7 +132,7 @@
                 box.position.set(0, 0.006, 0); // Center the box at the origin and adjust height
                 scene.add(box);
                 createdBox = box; // Store the reference to the created box
-                createHoles();
+                // createHoles();
                 // inputButton()
                 // Create sliders for x and z dimensions
                 const xSlider = createSlider('SLIDER', new THREE.Vector3(0, 0.1, -0.8), null);
@@ -255,23 +255,32 @@
                         let [valueToChange,axis]=buttonsSegments[0].target
 console.log(buttonsSegments[0].target);
                        if(valueToChange==="createdUprightBox"){
-                           createdUprightBox.scale[axis]+=0.1
-                           console.log(selectedAxisText)
-                           slapValue=createdUprightBox.scale[axis]
-                           selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(1)} mm`, 0.09, 0.01)
+                        const heightIncrement = 0.1;
+
+    // Define the maximum allowed height in mm
+    const maxHeight = 2.3
+
+    // Change the height of the box and keep the bottom fixed
+    const newHeight = changeHeight(createdUprightBox, heightIncrement, maxHeight);
+                        //    createdUprightBox.scale[axis]+=0.1
+                        //    createdUprightBox.scale.y 
+                        //    console.log(createdUprightBox.geometry.parameters.height + 0.1,"llo0o");
+                           slapValue=createdUprightBox.scale[axis]*600
+                           selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(0)} mm`, 0.09, 0.01)
                            console.log(createdUprightBox.scale[axis]*600,"dssddfds");
                        }
                     else if(valueToChange==="createdBox")
                      {  createdBox.scale[axis]+=0.1
-                       slapValue= createdBox.scale[axis]
+                       slapValue= createdBox.scale[axis]*600
                     //    update3DText(textMesh, 'New Text!', 1, 0.1);
-                       selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(1)} mm`, 0.09, 0.01)
+                       selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(0)} mm`, 0.09, 0.01)
                         console.log(createdBox.scale[axis]*600,"dssddfds");
                     }
                       else if(valueToChange==="createdBoxTop")
                       { createdBoxTop.scale[axis]+=0.1
-                        slapValue=createdBoxTop.scale[axis]
-                        selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(1)} mm`, 0.09, 0.01)
+                       
+                        slapValue=createdBoxTop.scale[axis]*600
+                        selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(0)} mm`, 0.09, 0.01)
                         console.log(createdBoxTop.scale[axis]*600,"dssddfds");
                     }
                     //    if(valueToChange==="createUprightBox")
@@ -287,10 +296,18 @@ console.log(buttonsSegments[0].target);
                        if(valueToChange==="createdUprightBox"){
 if(createdUprightBox.scale[axis]<0.2){
     return console.log("no");
+
 }
-                           createdUprightBox.scale[axis]-=0.1
-                           slapValue=createdUprightBox.scale[axis]
-                           selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(1)} mm`, 0.09, 0.01)
+const heightIncrement = 0.1;
+
+// Define the maximum allowed height in mm
+const maxHeight = 0.3;
+const decrement=true
+                        //    createdUprightBox.scale[axis]-=0.1
+                           const newHeight = changeHeight1(createdUprightBox, heightIncrement, maxHeight)
+                           console.log(createdUprightBox.scale,"kkfkdfjdkfjdkfj999");
+                           slapValue=createdUprightBox.scale[axis]*600
+                           selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(0)} mm`, 0.09, 0.01)
                        }
                     else if(valueToChange==="createdBox")
                     
@@ -299,8 +316,8 @@ if(createdUprightBox.scale[axis]<0.2){
     return console.log("no");
 }
                         createdBox.scale[axis]-=0.1
-                        slapValue=createdBox.scale[axis]
-                        selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(1)} mm`, 0.09, 0.01)}
+                        slapValue=createdBox.scale[axis]*600
+                        selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(0)} mm`, 0.09, 0.01)}
                         
                       else if(valueToChange==="createdBoxTop")
                       {
@@ -308,8 +325,8 @@ if(createdUprightBox.scale[axis]<0.2){
     return console.log("no");
 }
                         createdBoxTop.scale[axis]-=0.1
-                        slapValue=createdBoxTop.scale[axis]
-                        selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(1)} mm`, 0.09, 0.01)}
+                        slapValue=createdBoxTop.scale[axis]*600
+                        selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(0)} mm`, 0.09, 0.01)}
                     //    if(valueToChange==="createUprightBox")
                     //    cleat.scale[axis]-=0.1
 
@@ -360,6 +377,7 @@ function resetSlider(slider) {
 }
             function createUprightBox() {
                 if (createdBox && !createdUprightBox) {
+                    console.log("event","dssdsd3333");
                     const uprightBoxGeometry = new THREE.BoxGeometry(0.1, 2.7, 0.1); // Adjusted to meters
                     const uprightBoxMaterial = new THREE.MeshStandardMaterial({ color: 0x555555 });
                     const uprightBox = new THREE.Mesh(uprightBoxGeometry, uprightBoxMaterial);
@@ -374,13 +392,14 @@ function resetSlider(slider) {
                     const minLabel = create3DText('300 mm', 0.05, 0.01, new THREE.Vector3(1.55, 0.3, 0));
                     const maxLabel = create3DText('2700 mm', 0.05, 0.01, new THREE.Vector3(1.55, 2.7, 0));
                     const yLabel = create3DText('2700 mm', 0.05, 0.01, new THREE.Vector3(1.55, 1.35, 0));
-ySlider.target=["createdUprightBox","y"]
+                    ySlider.target=["createdUprightBox","y"]
                     // Enable dragging for upright box and vertical slider
                     const dragItems = [uprightBox, ySlider];
                     dragControls = new DragControls(dragItems, camera, renderer.domElement);
                     dragControls.addEventListener('dragstart', onDragStart);
                     dragControls.addEventListener('dragend', onDragEnd);
                     dragControls.addEventListener('drag', (event) => {
+                      
                         if (createdUprightBox && createdBox) {
                             // Constrain the upright box to move only within the x and z plane
                             const boxWidth = createdBox.scale.x * 0.6;
@@ -408,7 +427,8 @@ ySlider.target=["createdUprightBox","y"]
                                     height: 0.01,
                                 });
                                 yLabel.position.set(1.55, newY, 0);
-                            } else {
+                            } 
+                            else {
                                 createdUprightBox.position.x = THREE.MathUtils.clamp(event.object.position.x, minX, maxX);
                                 createdUprightBox.position.z = THREE.MathUtils.clamp(event.object.position.z, minZ, maxZ);
                                 createdUprightBox.position.y = 0.006 + 1.35 * createdUprightBox.scale.y; // Ensure Y position stays constant
@@ -498,6 +518,64 @@ ySlider.target=["createdUprightBox","y"]
 }
 
 
+function changeHeight(createdUprightBox, increment, maxHeight,) {
+    const currentHeight = createdUprightBox.geometry.parameters.height;
+    const currentWidth = createdUprightBox.geometry.parameters.width;
+    const currentDepth = createdUprightBox.geometry.parameters.depth;
+
+    // Calculate the new height
+   
+   const newHeight = currentHeight + increment;
+console.log(newHeight,newHeight,maxHeight,currentHeight,increment,"llll");
+    // Ensure the new height does not exceed the maximum height
+    if (currentHeight> maxHeight) {
+        console.log(`Cannot increase height beyond ${maxHeight} mm`);
+        return currentHeight; // Return the current height without any changes
+    }
+
+    // Create a new BoxGeometry with the new height
+    const newGeometry = new THREE.BoxGeometry(currentWidth, newHeight, currentDepth);
+
+    // Dispose of the old geometry to free up memory
+    createdUprightBox.geometry.dispose();
+
+    // Assign the new geometry to the mesh
+    createdUprightBox.geometry = newGeometry;
+
+    // Adjust the position so the bottom of the box stays in place
+    createdUprightBox.position.y += increment / 2;
+
+    return newHeight;
+}
+function changeHeight1(createdUprightBox, increment, maxHeight,) {
+    const currentHeight = createdUprightBox.geometry.parameters.height;
+    const currentWidth = createdUprightBox.geometry.parameters.width;
+    const currentDepth = createdUprightBox.geometry.parameters.depth;
+
+    // Calculate the new height
+   
+   const newHeight = currentHeight - increment;
+   console.log(newHeight,maxHeight,"llll");
+    // Ensure the new height does not exceed the maximum height
+    if (newHeight< maxHeight) {
+        console.log(`Cannot increase height beyond ${maxHeight} mm`);
+        return currentHeight; // Return the current height without any changes
+    }
+
+    // Create a new BoxGeometry with the new height
+    const newGeometry = new THREE.BoxGeometry(currentWidth, newHeight, currentDepth);
+
+    // Dispose of the old geometry to free up memory
+    createdUprightBox.geometry.dispose();
+
+    // Assign the new geometry to the mesh
+    createdUprightBox.geometry = newGeometry;
+
+    // Adjust the position so the bottom of the box stays in place
+    createdUprightBox.position.y -= increment / 2;
+
+    return newHeight;
+}
 
 
 function showInputField(object) {
