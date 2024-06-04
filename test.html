@@ -112,6 +112,7 @@
                 if (rotation) slider.rotation.copy(rotation);
                 slider.name = name;
                 scene.add(slider);
+                console.log(slider,"kmnjk");
                 return slider;
             }
 
@@ -162,11 +163,15 @@
                     
                     if (event.object.u_name === 'X_SLIDER') {
                         const newX = THREE.MathUtils.clamp(event.object.position.x, -0.3, 0.3);
+                        console.log(newX,slapValue,"laslas");
+                        slapValue=newX*600
+                       
                         event.object.position.x = newX;
                         event.object.position.y = 0.1; // Lock movement to the x plane
                         event.object.position.z = -0.8; // Lock movement to the x plane
                         createdBox.scale.x = (newX + 0.3) / 0.6;
                         xLabel.geometry.dispose(); // Dispose old geometry
+                        selectedAxisText=update3DText(selectedAxisText,`${(createdBox.scale.x * 600).toFixed(0)} mm`, 0.09, 0.01)
                         xLabel.geometry = new TextGeometry(`${(createdBox.scale.x * 600).toFixed(0)} mm`, {
                             font: font,
                             size: 0.05,
@@ -179,6 +184,7 @@
                         event.object.position.x = 0.8; // Lock movement to the z plane
                         createdBox.scale.z = (newZ + 0.3) / 0.6;
                         zLabel.geometry.dispose(); // Dispose old geometry
+                        selectedAxisText=update3DText(selectedAxisText,`${(createdBox.scale.z * 600).toFixed(0)} mm`, 0.09, 0.01)
                         zLabel.geometry = new TextGeometry(`${(createdBox.scale.z * 600).toFixed(0)} mm`, {
                             font: font,
                             size: 0.05,
@@ -267,26 +273,25 @@ console.log(buttonsSegments[0].target);
                         //    console.log(createdUprightBox.geometry.parameters.height + 0.1,"llo0o");
                            slapValue=createdUprightBox.scale[axis]*600
                            selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(0)} mm`, 0.09, 0.01)
-                           console.log(createdUprightBox.scale[axis]*600,"dssddfds");
+                           console.log(slapValue,"dssddfds");
                        }
                     else if(valueToChange==="createdBox")
-                     {  createdBox.scale[axis]+=0.1
+                     {createdBox.scale[axis]+=0.1
                        slapValue= createdBox.scale[axis]*600
-                    //    update3DText(textMesh, 'New Text!', 1, 0.1);
+                    // update3DText(textMesh, 'New Text!', 1, 0.1);
                        selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(0)} mm`, 0.09, 0.01)
                         console.log(createdBox.scale[axis]*600,"dssddfds");
                     }
                       else if(valueToChange==="createdBoxTop")
-                      { createdBoxTop.scale[axis]+=0.1
-                       
+                      { 
+                        createdBoxTop.scale[axis]+=0.1
                         slapValue=createdBoxTop.scale[axis]*600
                         selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(0)} mm`, 0.09, 0.01)
                         console.log(createdBoxTop.scale[axis]*600,"dssddfds");
-                    }
+                      }
                     //    if(valueToChange==="createUprightBox")
                     //    cleat.scale[axis]-=0.1
-
-                        // createBox(counter)
+                   // createBox(counter)
                         break;  // Exit the loop after finding the button
                         break;  // Exit the loop after finding the button
                     
@@ -305,9 +310,10 @@ const maxHeight = 0.3;
 const decrement=true
                         //    createdUprightBox.scale[axis]-=0.1
                            const newHeight = changeHeight1(createdUprightBox, heightIncrement, maxHeight)
-                           console.log(createdUprightBox.scale,"kkfkdfjdkfjdkfj999");
+                           console.log(createdBox.scale[axis]*600,createdUprightBox.scale,"kkfkdfjdkfjdkfj999");
                            slapValue=createdUprightBox.scale[axis]*600
                            selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(0)} mm`, 0.09, 0.01)
+                           console.log(createdBox.scale[axis]*600,"dssddfds");
                        }
                     else if(valueToChange==="createdBox")
                     
@@ -317,6 +323,7 @@ const decrement=true
 }
                         createdBox.scale[axis]-=0.1
                         slapValue=createdBox.scale[axis]*600
+                        console.log(createdBox.scale[axis],"dsdsdscccdc");
                         selectedAxisText=update3DText(selectedAxisText,`${slapValue.toFixed(0)} mm`, 0.09, 0.01)}
                         
                       else if(valueToChange==="createdBoxTop")
@@ -732,7 +739,7 @@ function createHoles() {
     }
     const circleRadius = 0.05; // Radius of the circles
     const circleSegments = 32; // Number of segments, making the circle appear smooth
-
+console.log("sasghjgs");
     // Create the circle geometry
     const circleGeometry = new THREE.CircleGeometry(circleRadius, circleSegments);
 
