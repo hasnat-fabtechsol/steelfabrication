@@ -235,7 +235,7 @@
                 if (intersects.length > 0) {
             const intersect = intersects[0];
            if(intersect.object.name=="cleat_name")
-            {console.log(intersect,"wewew1");
+            {console.log(intersect,"wewhew1");
             // showInputField(intersect.object);
             createHole(intersect.point,intersect.object);}
         }
@@ -367,6 +367,8 @@ console.log(intersects[i].object.target);
              
                 }
             }
+            
+            
             function highlightSlider(slider) {
     // Store the original material to revert back if needed
     if (!slider.userData.originalMaterial) {
@@ -745,7 +747,7 @@ console.log("sasghjgs");
 
     // Create the material for the circles
     const circleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Green color
-
+    
     // Ensure any previous holes are removed before creating new ones
     if (createdHoles) {
         createdHoles.forEach(hole => scene.remove(hole));
@@ -762,7 +764,7 @@ console.log("sasghjgs");
         { x: xOffset, z: zOffset },
         { x: -xOffset, z: zOffset },
         { x: xOffset, z: -zOffset },
-        { x: -xOffset, z: -zOffset }
+        { x: -xOffset, z: -zOffset },
     ];
     0, 0.006 + 1.35, 0
 
@@ -783,6 +785,28 @@ console.log("sasghjgs");
         }
         return true;
     });
+    dragControls = new DragControls(createdHoles, camera, renderer.domElement);
+                    dragControls.addEventListener('dragstart', onDragStart);
+                    dragControls.addEventListener('dragend', onDragEnd);
+                    dragControls.addEventListener('dragend', onDragEnd);
+                    dragControls.addEventListener('drag', onDrag)
+console.log(createdBox.position,"dfwefwefwef");
+function onDrag(event) {
+    
+    // Constrain the dragged object's position
+    const draggedHole = event.object;
+    console.log(draggedHole,"llklkolpolopo");
+    draggedHole.position.clamp(createdBox.position);
+}
+    function onDragEnd(event) {
+        controls.enabled = true;
+        const draggedHole = event.object;
+        const index = createdHoles.indexOf(draggedHole);
+        if (index !== -1) {
+            createdHoles[index].position.copy(draggedHole.position);
+        }
+    }
+
 }
 
 function checkOverlap(circle) {
@@ -819,6 +843,7 @@ function checkOverlap(circle) {
             }
 
             function onDragEnd(event) {
+                
                 createHoles();
                 controls.enabled = true; // Re-enable orbit controls
 
